@@ -19,6 +19,8 @@ use yii\helpers\ArrayHelper;
  * @property string $phone
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property \app\models\Task[] $tasks
  */
 class User extends ActiveRecord
 {
@@ -99,6 +101,15 @@ class User extends ActiveRecord
 	public static function find()
 	{
 		return new \app\models\query\UserQuery(get_called_class());
+	}
+
+
+	/**
+	 * @return \app\models\query\TaskQuery|\yii\db\ActiveQuery
+	 */
+	public function getTasks()
+	{
+		return $this->hasMany(\app\models\Task::className(), ['user_id' => 'id']);
 	}
 
 

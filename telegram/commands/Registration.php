@@ -11,7 +11,6 @@ class Registration extends Command
     {
         $bot->hear('/start', [$this, 'actionStart']);
         $bot->hear('/phone', [$this, 'actionPhone']);
-        $bot->hear('*', [$this, 'actionDefault']);
     }
 
     public function actionDefault(Bot $bot)

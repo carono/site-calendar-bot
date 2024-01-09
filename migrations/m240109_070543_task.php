@@ -1,22 +1,9 @@
 <?php
-/**
- * This view is used by console/controllers/MigrateController.php
- * The following variables are available in this view:
- */
-/* @var $className string the new migration class name without namespace */
-/* @var $namespace string the new migration class namespace */
-
-echo "<?php\n";
-if (!empty($namespace)) {
-    echo "\nnamespace {$namespace};\n";
-}
-?>
 
 use carono\yii2migrate\Migration;
 
-class <?= $className ?> extends Migration
+class m240109_070543_task extends Migration
 {
-
     public function newTables()
     {
         return [];
@@ -24,7 +11,12 @@ class <?= $className ?> extends Migration
 
     public function newColumns()
     {
-        return [];
+        return [
+            '{{%task}}' => [
+                'user_id' => $this->foreignKey('{{%user}}')->after('description'),
+                'raw_message' => $this->text()->after('description'),
+            ]
+        ];
     }
 
     public function newIndex()
