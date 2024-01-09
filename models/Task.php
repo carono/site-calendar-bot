@@ -14,8 +14,11 @@ use carono\telegram\dto\Message;
  */
 class Task extends base\Task
 {
-    public static function add(Message $message, User $user)
+    public static function add($message, User $user)
     {
+        /**
+         * @var Message $message
+         */
         $model = new static();
         $model->title = trim(substr($message->text, 5));
         $model->user_id = $user->id;
