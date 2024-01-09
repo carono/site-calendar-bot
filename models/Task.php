@@ -25,5 +25,6 @@ class Task extends base\Task
         if (!$model->save()) {
             throw new ValidationException($model);
         }
+        return $model;
     }
 }

@@ -18,7 +18,9 @@ class Task extends Command
     {
         $user = $this->getUser($bot);
         if ($user) {
-            \app\models\Task::add($bot->message, $user);
+            if ($task = \app\models\Task::add($bot->message, $user)) {
+                $bot->sayPrivate('Задачу создали: ' . $task->title);
+            }
         }
     }
 }
