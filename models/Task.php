@@ -22,6 +22,7 @@ class Task extends base\Task
         $model = new static();
         $model->title = trim(substr($message->text, 5));
         $model->user_id = $user->id;
+        $model->raw_message = $message->text;
         if (!$model->save()) {
             throw new ValidationException($model);
         }
