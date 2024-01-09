@@ -16,10 +16,10 @@ use yii\helpers\ArrayHelper;
  * @property integer $id
  * @property string $title
  * @property string $description
+ * @property integer $user_id
  * @property string $raw_message
  * @property string $planned_at
  * @property string $finished_at
- * @property integer $user_id
  * @property string $created_at
  * @property string $updated_at
  *
@@ -49,9 +49,10 @@ class Task extends ActiveRecord
 	public function rules()
 	{
 		return [
-		[['description', 'raw_message'], 'string'],
-		      [['planned_at', 'finished_at'], 'safe'],
+		[['title'], 'required'],
+		      [['description', 'raw_message'], 'string'],
 		      [['user_id'], 'integer'],
+		      [['planned_at', 'finished_at'], 'safe'],
 		      [['title'], 'string', 'max' => 255],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
 		      [['description', 'raw_message'], 'trim']
@@ -92,12 +93,12 @@ class Task extends ActiveRecord
 		    'id' => Yii::t('models', 'ID'),
 		    'title' => Yii::t('models', 'Title'),
 		    'description' => Yii::t('models', 'Description'),
+		    'user_id' => Yii::t('models', 'User ID'),
 		    'raw_message' => Yii::t('models', 'Raw Message'),
 		    'planned_at' => Yii::t('models', 'Planned At'),
 		    'created_at' => Yii::t('models', 'Created At'),
 		    'updated_at' => Yii::t('models', 'Updated At'),
-		    'finished_at' => Yii::t('models', 'Finished At'),
-		    'user_id' => Yii::t('models', 'User ID')
+		    'finished_at' => Yii::t('models', 'Finished At')
 		];
 	}
 

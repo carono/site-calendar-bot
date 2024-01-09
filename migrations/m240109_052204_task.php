@@ -11,8 +11,10 @@ class m240109_052204_task extends Migration
         return [
             '{{%task}}' => [
                 'id' => $this->primaryKey(),
-                'title' => $this->char(255),
+                'title' => $this->char(255)->notNull(),
                 'description' => $this->text(),
+                'user_id' => $this->foreignKey('{{%user}}'),
+                'raw_message' => $this->text(),
                 'planned_at' => $this->dateTime(),
                 'created_at' => $this->dateTime(),
                 'updated_at' => $this->dateTime(),
