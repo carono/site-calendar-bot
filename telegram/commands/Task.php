@@ -5,9 +5,7 @@ namespace app\telegram\commands;
 use app\exceptions\ValidationException;
 use carono\telegram\Bot;
 use Exception;
-use Yii;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
 
 class Task extends Command
 {
@@ -17,11 +15,16 @@ class Task extends Command
         $bot->hear('/add', [$this, 'actionAdd']);
         $bot->hear('/tasks', [$this, 'actionList']);
         $bot->hear('/close', [$this, 'actionClose']);
+        $bot->hear('*', [$this, 'actionAdd']);
         // TODO: Implement register() method.
     }
 
     public function actionAdd(\app\components\Bot $bot)
     {
+        $cmd = \app\helpers\TelegramHelper::getCommandFromText($bot->message->text);
+        if ($cmd && $cmd != '/add') {
+            return;
+        }
         $user = $this->getUser($bot);
         if ($user) {
             try {

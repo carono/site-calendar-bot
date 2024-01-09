@@ -19,9 +19,11 @@ class Task extends base\Task
         /**
          * @var Message $message
          */
+        $text = trim(str_contains($message->text, '/add') ? mb_substr($message->text, 5, null, 'UTF-8') : $message->text);
         $model = new static();
-        $model->title = trim(substr($message->text, 5));
+        $model->title = mb_substr($text, 0, 254, 'UTF-8');
         $model->user_id = $user->id;
+        $model->description = mb_strlen($model->title, 'UTF-8') == 254 ? $text : null;
         $model->raw_message = $message->text;
         if (!$model->save()) {
             throw new ValidationException($model);
