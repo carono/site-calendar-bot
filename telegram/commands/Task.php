@@ -3,6 +3,7 @@
 namespace app\telegram\commands;
 
 use carono\telegram\Bot;
+use Exception;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -20,8 +21,11 @@ class Task extends Command
     {
         $user = $this->getUser($bot);
         if ($user) {
-            if ($task = \app\models\Task::add($bot->message, $user)) {
+            try {
+                $task = \app\models\Task::add($bot->message, $user);
                 $bot->sayPrivate('Задачу создали: ' . $task->title);
+            } catch (Exception $e) {
+                $bot->sayPrivate('Не удалось создать: ' . $e->getMessage());
             }
         }
     }
