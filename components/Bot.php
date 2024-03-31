@@ -12,6 +12,8 @@ use yii\db\Expression;
 
 class Bot extends \carono\telegram\Bot
 {
+    public $chat_id;
+
     public static function getAuthKeyboard()
     {
         $keyboardParams = [];
@@ -32,6 +34,17 @@ class Bot extends \carono\telegram\Bot
         $this->commandsFolder = Yii::getAlias('@app/telegram/commands');
         static::setCacheFolder(Yii::getAlias('@runtime/cache/telegram'));
         parent::init();
+    }
+
+    public function getFromId()
+    {
+        if (isset($this->message)) {
+            return $this->message->from->id;
+        }
+        if (isset($this->callback_query)) {
+            return $this->callback_query->from->id;
+        }
+        return $this->chat_id;
     }
 
     public function process()

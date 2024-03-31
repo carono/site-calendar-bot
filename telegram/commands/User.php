@@ -13,6 +13,11 @@ class User extends Command
         $bot->hear('Настройки', [$this, 'actionSettings']);
     }
 
+    public function setName(Bot $bot)
+    {
+        $bot->say('OK');
+    }
+
     public function actionSettings(Bot $bot)
     {
         $keyboardParams[] = [

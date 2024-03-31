@@ -21,11 +21,11 @@ class PlanningController extends Controller
             $titles = $todayTaskQuery->limit($user->daily_task_avg_count)->select(['title'])->column();
             sort($titles);
             $message = implode("\n", $titles);
-//            $bot->dialog_user_chat_id = $user->chat_id;
-//            $bot->ask($message, function ($bot) {
-//                $bot->say('ok');
-//            });
-            $bot->getClient()->sendMessage($user->chat_id, $message);
+            $bot->chat_id = $user->chat_id;
+            $bot->ask($message, function (Bot $bot) {
+                $bot->say('OK');
+            });
+//            $bot->getClient()->sendMessage($user->chat_id, $message);
         }
     }
 }

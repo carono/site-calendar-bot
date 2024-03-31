@@ -254,25 +254,23 @@ class BotApi
             if (!isset($response['ok']) || !$response['ok']) {
                 throw new Exception($response['description'], $response['error_code']);
             }
-            Yii::$app->db
-                ->createCommand()
-                ->insert('{{%telegram_log}}', [
-                    'chat_id' => $data['chat_id'],
-                    'message' => $data['text'],
-                    'is_request' => false,
-                    'created_at' => new Expression('NOW()')
-                ])
-                ->execute();
-
+            if (isset($data['chat_id']) && $data['text']) {
+                Yii::$app->db
+                    ->createCommand()
+                    ->insert('{{%telegram_log}}', [
+                        'chat_id' => $data['chat_id'],
+                        'message' => $data['text'],
+                        'is_request' => false,
+                        'created_at' => new Expression('NOW()')
+                    ])
+                    ->execute();
+            }
             return $response['result'];
         }
 
         if (!$response->ok) {
             throw new Exception($response->description, $response->error_code);
         }
-
-        print_r($data);
-
 
         return $response->result;
     }
