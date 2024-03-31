@@ -26,7 +26,11 @@
     "carono/yii2-giix": "@stable",
     "yiisoft/yii2-symfonymailer": "^3.0",
     "carono/telegram-bot-components": "@dev",
-    "symfony/cache": "@stable"
+    "symfony/cache": "@stable",
+    "openai-php/client": "^0.8.1",
+    "symfony/http-client": "^7.0",
+    "nyholm/psr7": "^1.8",
+    "guzzlehttp/guzzle": "^7.8"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",
@@ -41,7 +45,8 @@
       "enabled": false
     },
     "allow-plugins": {
-      "yiisoft/yii2-composer": true
+      "yiisoft/yii2-composer": true,
+      "php-http/discovery": true
     }
   },
   "scripts": {

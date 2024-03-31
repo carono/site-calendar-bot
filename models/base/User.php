@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $chat_id
  * @property string $chat_name
  * @property string $phone
+ * @property integer $daily_task_avg_count
  * @property string $created_at
  * @property string $updated_at
  *
@@ -46,7 +47,8 @@ class User extends ActiveRecord
 	public function rules()
 	{
 		return [
-		[['chat_id'], 'integer'],
+		[['chat_id', 'daily_task_avg_count'], 'default', 'value' => null],
+		      [['chat_id', 'daily_task_avg_count'], 'integer'],
 		      [['chat_name'], 'string', 'max' => 255],
 		      [['phone'], 'string', 'max' => 12],
 		      [['chat_id'], 'unique']
@@ -89,7 +91,8 @@ class User extends ActiveRecord
 		    'chat_name' => Yii::t('models', 'Chat Name'),
 		    'phone' => Yii::t('models', 'Phone'),
 		    'created_at' => Yii::t('models', 'Created At'),
-		    'updated_at' => Yii::t('models', 'Updated At')
+		    'updated_at' => Yii::t('models', 'Updated At'),
+		    'daily_task_avg_count' => Yii::t('models', 'Daily Task Avg Count')
 		];
 	}
 

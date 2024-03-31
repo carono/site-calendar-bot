@@ -51,6 +51,7 @@ class Task extends ActiveRecord
 		return [
 		[['title'], 'required'],
 		      [['description', 'raw_message'], 'string'],
+		      [['user_id'], 'default', 'value' => null],
 		      [['user_id'], 'integer'],
 		      [['planned_at', 'finished_at'], 'safe'],
 		      [['title'], 'string', 'max' => 255],

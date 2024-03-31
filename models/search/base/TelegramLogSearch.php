@@ -11,12 +11,13 @@ use carono\yii2helpers\SortHelper;
 use yii\data\ActiveDataProvider;
 use yii\data\Sort;
 
-class UserSearch extends \app\models\User implements \app\interfaces\Search
+class TelegramLogSearch extends \app\models\TelegramLog implements \app\interfaces\Search
 {
 	public function rules()
 	{
-		return [[['id', 'chat_id', 'daily_task_avg_count'], 'integer'],
-		[['chat_name', 'phone', 'created_at', 'updated_at'], 'safe']];
+		return [[['id', 'chat_id'], 'integer'],
+		[['is_request'], 'boolean'],
+		[['message', 'created_at'], 'safe']];
 	}
 
 
