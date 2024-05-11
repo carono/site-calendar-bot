@@ -26,10 +26,7 @@ class GptController extends Controller
         $response = AIHelper::grouping($user, $tasks);
         foreach ($response as $groupingDTO) {
             $task = $user->getTasks()->notFinished()->andWhere(['id' => $groupingDTO->task_id])->one();
-            if (!$task) {
-                Console::output("NOT FOUND {$groupingDTO->title}");
-                continue;
-            }
+            Console::output("{$groupingDTO->title} - {$groupingDTO->group}");
             $group = Group::findByName($user, $groupingDTO->group);
             $task->updateAttributes(['group_id' => $group->id]);
         }
