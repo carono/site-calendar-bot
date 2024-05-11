@@ -41,12 +41,19 @@ class Task extends Command
     public function actionList(\app\components\Bot $bot)
     {
         if ($user = $this->getUser($bot)) {
-            $titles = $user->getTasks()->joinWith(['group'])->andWhere(['finished_at' => null])->all();
+            $tasks = $user->getTasks()->joinWith(['group'])
+                ->andWhere(['finished_at' => null])
+                ->orderBy(['group.name' => SORT_ASC])
+                ->all();
+
             $message = [];
-            foreach (ArrayHelper::index($titles, 'group_id') as $groupId => $tasks) {
-                $message[] = Group::findOne($groupId)->name;
-                foreach ($tasks as $task) {
-                    $message[] = '* ' . trim($task->title) . ' (/close' . $task->id . ')';
+            $data = ArrayHelper::index($tasks, 'id', 'group.name');
+
+            foreach ($data as $groupName => $items) {
+                $message[] = '';
+                $message[] = $groupName;
+                foreach ($items as $task) {
+                    $message[] = ' * ' . trim($task->title) . ' (/close' . $task->id . ')';
                 }
             }
             $bot->sayPrivate(implode("\r\n", $message));
