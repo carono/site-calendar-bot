@@ -27,7 +27,7 @@ class Task extends base\Task
         $model->raw_message = $message->text;
         $response = AIHelper::createTask($user, $message->text);
         $model->setAttributes($response->attributes);
-        $model->group_id = Group::findByName($user, $response->group);
+        $model->group_id = Group::findByName($user, $response->group)->id;
         if (!$model->save()) {
             throw new ValidationException($model);
         }
