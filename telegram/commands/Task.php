@@ -29,7 +29,7 @@ class Task extends Command
         if ($user) {
             try {
                 $task = \app\models\Task::add($bot->message, $user);
-                $bot->sayPrivate('Задачу создали: ' . $task->title);
+                $bot->sayPrivate("Задачу создали: {$task->title} ({$task->group->name}), $task->planned_at");
             } catch (Exception $e) {
                 $bot->sayPrivate('Не удалось создать: ' . $e->getMessage());
             }
