@@ -72,7 +72,7 @@ class AIHelper
             ->make();
     }
 
-    public static function ask($user, $question)
+    public static function createTask($user, $question)
     {
         $response = static::getClient()->chat()->create([
             'model' => 'gpt-3.5-turbo',

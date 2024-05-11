@@ -7,6 +7,7 @@
 namespace app\models;
 
 use app\exceptions\ValidationException;
+use app\helpers\AIHelper;
 use carono\telegram\dto\Message;
 
 /**
@@ -23,8 +24,10 @@ class Task extends base\Task
         $model = new static();
         $model->title = mb_substr($text, 0, 254, 'UTF-8');
         $model->user_id = $user->id;
-        $model->description = mb_strlen($model->title, 'UTF-8') == 254 ? $text : null;
         $model->raw_message = $message->text;
+        $response = AIHelper::createTask($user, $message);
+        $model->setAttributes($response->attributes);
+
         if (!$model->save()) {
             throw new ValidationException($model);
         }
