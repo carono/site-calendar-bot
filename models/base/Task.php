@@ -20,14 +20,16 @@ use yii\helpers\ArrayHelper;
  * @property string $raw_message
  * @property string $planned_at
  * @property string $finished_at
+ * @property integer $group_id
  * @property string $created_at
  * @property string $updated_at
  *
+ * @property \app\models\Group $group
  * @property \app\models\User $user
  */
 class Task extends ActiveRecord
 {
-	protected $_relationClasses = ['user_id' => 'app\models\User'];
+	protected $_relationClasses = ['group_id' => 'app\models\Group', 'user_id' => 'app\models\User'];
 
 
 	public function behaviors()
@@ -51,10 +53,11 @@ class Task extends ActiveRecord
 		return [
 		[['title'], 'required'],
 		      [['description', 'raw_message'], 'string'],
-		      [['user_id'], 'default', 'value' => null],
-		      [['user_id'], 'integer'],
+		      [['user_id', 'group_id'], 'default', 'value' => null],
+		      [['user_id', 'group_id'], 'integer'],
 		      [['planned_at', 'finished_at'], 'safe'],
 		      [['title'], 'string', 'max' => 255],
+		      [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Group::class, 'targetAttribute' => ['group_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
 		      [['description', 'raw_message'], 'trim']
 		];
@@ -99,7 +102,8 @@ class Task extends ActiveRecord
 		    'planned_at' => Yii::t('models', 'Planned At'),
 		    'created_at' => Yii::t('models', 'Created At'),
 		    'updated_at' => Yii::t('models', 'Updated At'),
-		    'finished_at' => Yii::t('models', 'Finished At')
+		    'finished_at' => Yii::t('models', 'Finished At'),
+		    'group_id' => Yii::t('models', 'Group ID')
 		];
 	}
 
@@ -111,6 +115,15 @@ class Task extends ActiveRecord
 	public static function find()
 	{
 		return new \app\models\query\TaskQuery(get_called_class());
+	}
+
+
+	/**
+	 * @return \app\models\query\GroupQuery|\yii\db\ActiveQuery
+	 */
+	public function getGroup()
+	{
+		return $this->hasOne(\app\models\Group::className(), ['id' => 'group_id']);
 	}
 
 

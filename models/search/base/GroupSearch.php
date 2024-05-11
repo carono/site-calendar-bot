@@ -11,12 +11,11 @@ use carono\yii2helpers\SortHelper;
 use yii\data\ActiveDataProvider;
 use yii\data\Sort;
 
-class TaskSearch extends \app\models\Task implements \app\interfaces\Search
+class GroupSearch extends \app\models\Group implements \app\interfaces\Search
 {
 	public function rules()
 	{
-		return [[['id', 'user_id', 'group_id'], 'integer'],
-		[['title', 'description', 'raw_message', 'planned_at', 'finished_at', 'created_at', 'updated_at'], 'safe']];
+		return [];
 	}
 
 

@@ -2,29 +2,37 @@
 
 namespace app\commands;
 
-use OpenAI;
-use Yii;
+use app\helpers\AIHelper;
+use app\models\Group;
+use app\models\User;
 use yii\console\Controller;
+use yii\helpers\Console;
 
 class GptController extends Controller
 {
     public function actionTest()
     {
+        $user = User::findOne(1);
+        $response = AIHelper::ask($user, 'Починить девятку через пару месяцев');
 
-        $client = OpenAI::factory()
-            ->withApiKey(Yii::$app->params['proxy-api']['token'])
-            ->withBaseUri('api.proxyapi.ru/openai/v1')
-            ->withHttpClient()
-            ->make();
-
-
-        $response = $client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
-            'messages' => [
-                ['role' => 'user', 'content' => 'тест'],
-            ],
-        ]);
-        print_r($response);
+        var_dump($response);
 //        return $response->choices[0]->message->content;
+    }
+
+    public function actionGrouping()
+    {
+        $user = User::findOne(1);
+        $tasks = $user->getTasks()->notFinished()->all();
+        $response = AIHelper::grouping($user, $tasks);
+        foreach ($response as $groupingDTO) {
+            $task = $user->getTasks()->notFinished()->andWhere(['id' => $groupingDTO->task_id])->one();
+            if (!$task) {
+                Console::output("NOT FOUND {$groupingDTO->title}");
+                continue;
+            }
+            $group = Group::findByName($user, $groupingDTO->group);
+            $task->updateAttributes(['group_id' => $group->id]);
+        }
+
     }
 }
