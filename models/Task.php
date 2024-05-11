@@ -25,7 +25,7 @@ class Task extends base\Task
         $model->title = mb_substr($text, 0, 254, 'UTF-8');
         $model->user_id = $user->id;
         $model->raw_message = $message->text;
-        $response = AIHelper::createTask($user, $message);
+        $response = AIHelper::createTask($user, $message->text);
         $model->setAttributes($response->attributes);
 
         if (!$model->save()) {
