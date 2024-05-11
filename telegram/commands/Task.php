@@ -3,9 +3,11 @@
 namespace app\telegram\commands;
 
 use app\exceptions\ValidationException;
+use app\models\Group;
 use carono\telegram\Bot;
 use Exception;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 class Task extends Command
 {
@@ -39,11 +41,15 @@ class Task extends Command
     public function actionList(\app\components\Bot $bot)
     {
         if ($user = $this->getUser($bot)) {
-            $titles = $user->getTasks()->andWhere(['finished_at' => null])->all();
-            $titles = array_map(function (\app\models\Task $task) {
-                return '* ' . trim($task->title) . ' (/close' . $task->id . ')';
-            }, $titles);
-            $bot->sayPrivate(implode("\r\n", $titles));
+            $titles = $user->getTasks()->joinWith(['group'])->andWhere(['finished_at' => null])->all();
+            $message = [];
+            foreach (ArrayHelper::index($titles, 'group_id') as $groupId => $tasks) {
+                $message[] = Group::findOne($groupId)->name;
+                foreach ($tasks as $task) {
+                    $message[] = '* ' . trim($task->title) . ' (/close' . $task->id . ')';
+                }
+            }
+            $bot->sayPrivate(implode("\r\n", $message));
         }
     }
 
