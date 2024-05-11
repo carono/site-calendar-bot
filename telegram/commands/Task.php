@@ -43,7 +43,7 @@ class Task extends Command
         if ($user = $this->getUser($bot)) {
             $tasks = $user->getTasks()->joinWith(['group'])
                 ->andWhere(['finished_at' => null])
-                ->orderBy(['{{%group}}.[[name]]' => SORT_ASC, 'title' => SORT_AS])
+                ->orderBy(['{{%group}}.[[name]]' => SORT_ASC, 'title' => SORT_ASC])
                 ->all();
 
             $message = [];
