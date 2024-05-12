@@ -10,4 +10,5 @@ class DetermineDTO extends Model
     public $task_id;
     public $title;
     public $planned_at;
+    public $description;
 }
