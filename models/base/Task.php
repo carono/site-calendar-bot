@@ -21,6 +21,7 @@ use yii\helpers\ArrayHelper;
  * @property string $planned_at
  * @property string $finished_at
  * @property integer $group_id
+ * @property string $approximate
  * @property string $created_at
  * @property string $updated_at
  *
@@ -56,10 +57,10 @@ class Task extends ActiveRecord
 		      [['user_id', 'group_id'], 'default', 'value' => null],
 		      [['user_id', 'group_id'], 'integer'],
 		      [['planned_at', 'finished_at'], 'safe'],
-		      [['title'], 'string', 'max' => 255],
+		      [['title', 'approximate'], 'string', 'max' => 255],
 		      [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Group::class, 'targetAttribute' => ['group_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
-		      [['description', 'raw_message'], 'trim']
+		      [['description', 'raw_message', 'approximate'], 'trim']
 		];
 	}
 
@@ -103,7 +104,8 @@ class Task extends ActiveRecord
 		    'created_at' => Yii::t('models', 'Created At'),
 		    'updated_at' => Yii::t('models', 'Updated At'),
 		    'finished_at' => Yii::t('models', 'Finished At'),
-		    'group_id' => Yii::t('models', 'Group ID')
+		    'group_id' => Yii::t('models', 'Group ID'),
+		    'approximate' => Yii::t('models', 'Approximate')
 		];
 	}
 

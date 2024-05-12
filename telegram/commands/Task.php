@@ -3,6 +3,7 @@
 namespace app\telegram\commands;
 
 use app\exceptions\ValidationException;
+use app\helpers\AIHelper;
 use app\models\Group;
 use carono\telegram\Bot;
 use Exception;
@@ -14,14 +15,14 @@ class Task extends Command
 
     public function register(Bot $bot)
     {
-        $bot->hear('/add', [$this, 'actionAdd']);
+//        $bot->hear('/add', [$this, 'actionAdd']);
         $bot->hear('/tasks', [$this, 'actionList']);
         $bot->hear('/close', [$this, 'actionClose']);
-        $bot->hear('*', [$this, 'actionAdd']);
+        $bot->hear('*', [$this, 'actionDetermine']);
         // TODO: Implement register() method.
     }
 
-    public function actionAdd(\app\components\Bot $bot)
+    public function actionDetermine(\app\components\Bot $bot)
     {
         $cmd = \app\helpers\TelegramHelper::getCommandFromText($bot->message->text);
         if ($cmd && $cmd != '/add') {
@@ -30,8 +31,25 @@ class Task extends Command
         $user = $this->getUser($bot);
         if ($user) {
             try {
-                $task = \app\models\Task::add($bot->message, $user);
-                $bot->sayPrivate("Задачу создали: {$task->title} ({$task->group->name}), $task->planned_at");
+                $determine = AIHelper::determine($user, $bot->message->text);
+                switch ($determine->type) {
+                    case AIHelper::TASK_CREATE:
+                        $task = \app\models\Task::add($bot->message, $user);
+                        $bot->sayPrivate("Задачу создали: {$task->title} ({$task->group->name}), $task->planned_at");
+                        break;
+                    case AIHelper::PLANNING:
+                        if ($task = $user->getTasks()->notFinished()->andWhere(['id' => (int)$determine->task_id])->one()) {
+                            $task->planned_at = $determine->planned_at;
+                            if (!$task->save()) {
+                                throw new ValidationException($task);
+                            }
+                            $bot->sayPrivate("Запланировали задачу {$task->title} на $task->planned_at");
+                        } else {
+                            $bot->sayPrivate("Не нашел задачу для планирования");
+                        }
+                        break;
+                    default:
+                }
             } catch (Exception $e) {
                 $bot->sayPrivate('Не удалось создать: ' . $e->getMessage());
             }

@@ -15,7 +15,8 @@ class GroupSearch extends \app\models\Group implements \app\interfaces\Search
 {
 	public function rules()
 	{
-		return [];
+		return [[['id', 'user_id'], 'integer'],
+		[['name', 'created_at'], 'safe']];
 	}
 
 

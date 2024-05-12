@@ -13,7 +13,11 @@ class GptController extends Controller
     public function actionTest()
     {
         $user = User::findOne(1);
-        $response = AIHelper::createTask($user, 'Починить девятку через пару месяцев');
+        $text = 'Запланируй починить девятку в пятницу';
+//        $text = 'Запланируй купить артрозелен в пятницу';
+        $response = AIHelper::determine($user, $text);
+//        $response = AIHelper::determine($user, 'Запланируй купить артрозелен в пятницу');
+//        $response = AIHelper::findTask($user, 'Запланируй починить девятку в пятницу');
 
         var_dump($response);
 //        return $response->choices[0]->message->content;
