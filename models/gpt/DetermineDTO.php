@@ -4,11 +4,7 @@ namespace app\models\gpt;
 
 use yii\base\Model;
 
-class DetermineDTO extends Model
+class DetermineDTO extends TaskDTO
 {
     public $type;
-    public $task_id;
-    public $title;
-    public $planned_at;
-    public $description;
 }
