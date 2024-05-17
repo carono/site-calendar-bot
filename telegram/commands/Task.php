@@ -7,6 +7,7 @@ use app\helpers\AIHelper;
 use app\models\Group;
 use carono\telegram\Bot;
 use Exception;
+use Yii;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
@@ -49,6 +50,8 @@ class Task extends Command
                         }
                         break;
                     default:
+                        Yii::error(json_encode($determine->attributes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'telegram-bot');
+                        $bot->sayPrivate('Не понятно ничего :(');
                 }
             } catch (Exception $e) {
                 $bot->sayPrivate('Не удалось создать: ' . $e->getMessage());
