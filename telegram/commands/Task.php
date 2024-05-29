@@ -12,6 +12,8 @@ use app\helpers\AIHelper;
 use app\models\Group;
 use carono\telegram\Bot;
 use Exception;
+use RuntimeException;
+use Throwable;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
@@ -45,7 +47,7 @@ class Task extends Command
                     ->addSystem(new GroupsSystem(['data' => $user->getActiveGroups()]))
                     ->addSystem(new ActiveTaskSystem(['data' => $user->getActiveTasks()]))
                     ->determine($question);
-                
+
                 switch ($determine->type) {
                     case 'CreateTaskCommand':
                         $task = \app\models\Task::add($bot->message, $user);
@@ -66,7 +68,7 @@ class Task extends Command
                         Yii::error(json_encode($determine->attributes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'telegram-bot');
                         $bot->sayPrivate('Не понятно ничего :(');
                 }
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 $bot->sayPrivate('Не удалось создать: ' . $e->getMessage());
             }
         }
