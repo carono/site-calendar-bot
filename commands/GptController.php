@@ -2,6 +2,11 @@
 
 namespace app\commands;
 
+use app\ai\ActiveTaskSystem;
+use app\ai\DateSystem;
+use app\ai\DetermineSystem;
+use app\ai\FormatSystem;
+use app\ai\GroupsSystem;
 use app\helpers\AIHelper;
 use app\models\Group;
 use app\models\User;
@@ -13,27 +18,32 @@ class GptController extends Controller
     public function actionTest()
     {
         $user = User::findOne(1);
-        $text = 'Запланируй починить девятку в пятницу';
-//        $text = 'Запланируй купить артрозелен в пятницу';
-        $response = AIHelper::determine($user, $text);
-//        $response = AIHelper::determine($user, 'Запланируй купить артрозелен в пятницу');
-//        $response = AIHelper::findTask($user, 'Запланируй починить девятку в пятницу');
+        $tasks = $user->getActiveTasks();
+        $groups = $user->getActiveGroups();
+//        $question = 'Запланируй починить девятку в пятницу';
+        $question = 'Найди задачу про починку девятки';
+        $response = AIHelper::start()
+            ->addSystem(new DateSystem())
+            ->addSystem(new FormatSystem())
+            ->addSystem(new DetermineSystem())
+            ->addSystem(new GroupsSystem(['data' => $groups]))
+            ->addSystem(new ActiveTaskSystem(['data' => $tasks]))
+            ->determine($question);
 
-        var_dump($response);
-//        return $response->choices[0]->message->content;
+        print_r($response);
+
     }
 
     public function actionGrouping()
     {
-        $user = User::findOne(1);
-        $tasks = $user->getTasks()->notFinished()->all();
-        $response = AIHelper::grouping($user, $tasks);
-        foreach ($response as $groupingDTO) {
-            $task = $user->getTasks()->notFinished()->andWhere(['id' => $groupingDTO->task_id])->one();
-            Console::output("{$groupingDTO->title} - {$groupingDTO->group}");
-            $group = Group::findByName($user, $groupingDTO->group);
-            $task->updateAttributes(['group_id' => $group->id]);
-        }
-
+//        $user = User::findOne(1);
+//        $tasks = $user->getTasks()->notFinished()->all();
+//        $response = AIHelper::grouping($user, $tasks);
+//        foreach ($response as $groupingDTO) {
+//            $task = $user->getTasks()->notFinished()->andWhere(['id' => $groupingDTO->task_id])->one();
+//            Console::output("{$groupingDTO->title} - {$groupingDTO->group}");
+//            $group = Group::findByName($user, $groupingDTO->group);
+//            $task->updateAttributes(['group_id' => $group->id]);
+//        }
     }
 }

@@ -2,6 +2,11 @@
 
 namespace app\telegram\commands;
 
+use app\ai\ActiveTaskSystem;
+use app\ai\DateSystem;
+use app\ai\DetermineSystem;
+use app\ai\FormatSystem;
+use app\ai\GroupsSystem;
 use app\exceptions\ValidationException;
 use app\helpers\AIHelper;
 use app\models\Group;
@@ -32,13 +37,21 @@ class Task extends Command
         $user = $this->getUser($bot);
         if ($user) {
             try {
-                $determine = AIHelper::determine($user, $bot->message->text);
+                $question = $bot->message->text;
+                $determine = AIHelper::start()
+                    ->addSystem(new DateSystem())
+                    ->addSystem(new FormatSystem())
+                    ->addSystem(new DetermineSystem())
+                    ->addSystem(new GroupsSystem(['data' => $user->getActiveGroups()]))
+                    ->addSystem(new ActiveTaskSystem(['data' => $user->getActiveTasks()]))
+                    ->determine($question);
+                
                 switch ($determine->type) {
-                    case AIHelper::TASK_CREATE:
+                    case 'CreateTaskCommand':
                         $task = \app\models\Task::add($bot->message, $user);
                         $bot->sayPrivate("Задачу создали: {$task->title} ({$task->group->name}), $task->planned_at");
                         break;
-                    case AIHelper::PLANNING:
+                    case 'PlanningCommand':
                         if ($task = $user->getTasks()->notFinished()->andWhere(['id' => (int)$determine->task_id])->one()) {
                             $task->planned_at = $determine->planned_at;
                             if (!$task->save()) {

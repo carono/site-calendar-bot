@@ -11,4 +11,5 @@ class TaskDTO extends Model
     public $description;
     public $planned_at;
     public $group;
+    public $task_id;
 }
