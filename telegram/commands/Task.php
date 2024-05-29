@@ -50,7 +50,8 @@ class Task extends Command
 
                 switch ($determine->type) {
                     case 'CreateTaskCommand':
-                        $task = \app\models\Task::add($bot->message, $user);
+                        $text = trim(str_contains($bot->message->text, '/add') ? mb_substr($bot->message->text, 5, null, 'UTF-8') : $bot->message->text);
+                        $task = \app\models\Task::add($text, $user);
                         $bot->sayPrivate("Задачу создали: {$task->title} ({$task->group->name}), $task->planned_at");
                         break;
                     case 'PlanningCommand':

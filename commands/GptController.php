@@ -9,6 +9,7 @@ use app\ai\FormatSystem;
 use app\ai\GroupsSystem;
 use app\helpers\AIHelper;
 use app\models\Group;
+use app\models\Task;
 use app\models\User;
 use yii\console\Controller;
 use yii\helpers\Console;
@@ -31,6 +32,13 @@ class GptController extends Controller
             ->determine($question);
 
         print_r($response);
+
+    }
+
+    public function actionAdd()
+    {
+        $user = User::findOne(1);
+        Task::add('Купить доски', $user);
 
     }
 

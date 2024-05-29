@@ -2,6 +2,7 @@
 
 namespace app\helpers;
 
+use app\ai\Command;
 use app\ai\System;
 use app\models\gpt\DetermineDTO;
 use GuzzleHttp\Client;
@@ -41,7 +42,7 @@ class AIHelper
         return new static();
     }
 
-    protected function ask(string $question)
+    public function ask(string $question, $class = null)
     {
         $request = [
             'model' => 'gpt-3.5-turbo',
@@ -52,15 +53,27 @@ class AIHelper
                 ]
             ])
         ];
-        file_put_contents(Yii::getAlias('@runtime/cache/request.json'), json_encode($request['messages'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $response = static::getClient()->chat()->create($request);
-        file_put_contents(Yii::getAlias('@runtime/cache/response.json'), $response->choices[0]->message->content);
-        return $response;
+        $content = $response->choices[0]->message->content;
+        file_put_contents(Yii::getAlias('@runtime/cache/request.json'), json_encode($request['messages'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        file_put_contents(Yii::getAlias('@runtime/cache/response.json'), $content);
+        if ($class) {
+            return new DetermineDTO(json_decode($content, true));
+        }
+        return $content;
     }
 
     public function determine(string $question)
     {
-        $response = $this->ask($question);
-        return new DetermineDTO(json_decode($response->choices[0]->message->content, true));
+        return $this->ask($question, DetermineDTO::class);
+    }
+
+    public function addCommand(Command $command)
+    {
+        $this->systemCommands[] = [
+            'role' => 'system',
+            'content' => $command->prompt
+        ];
+        return $this;
     }
 }

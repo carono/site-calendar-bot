@@ -6,8 +6,15 @@
 
 namespace app\models;
 
+use app\ai\ActiveTaskSystem;
+use app\ai\CreateTaskCommand;
+use app\ai\DateSystem;
+use app\ai\DetermineSystem;
+use app\ai\FormatSystem;
+use app\ai\GroupsSystem;
 use app\exceptions\ValidationException;
 use app\helpers\AIHelper;
+use app\models\gpt\TaskDTO;
 use carono\telegram\dto\Message;
 
 /**
@@ -15,17 +22,24 @@ use carono\telegram\dto\Message;
  */
 class Task extends base\Task
 {
-    public static function add($message, User $user)
+    public static function add($text, User $user)
     {
         /**
          * @var Message $message
          */
-        $text = trim(str_contains($message->text, '/add') ? mb_substr($message->text, 5, null, 'UTF-8') : $message->text);
+
         $model = new static();
         $model->title = mb_substr($text, 0, 254, 'UTF-8');
         $model->user_id = $user->id;
-        $model->raw_message = $message->text;
-        $response = AIHelper::createTask($user, $message->text);
+        $model->raw_message = $text;
+
+        $response = AIHelper::start()
+            ->addSystem(new DateSystem())
+            ->addSystem(new FormatSystem())
+            ->addSystem(new GroupsSystem(['data' => $user->getActiveGroups()]))
+            ->addCommand(new CreateTaskCommand())
+            ->ask($text, TaskDTO::class);
+
         $model->setAttributes($response->attributes);
         $model->group_id = Group::findByName($user, $response->group)->id;
         if (!$model->save()) {
