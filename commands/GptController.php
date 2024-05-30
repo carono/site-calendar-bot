@@ -38,7 +38,7 @@ class GptController extends Controller
     public function actionAdd()
     {
         $user = User::findOne(1);
-        Task::add('Купить доски', $user);
+        Task::add('Заехать завтра в налоговую', $user);
 
     }
 

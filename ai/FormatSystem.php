@@ -23,7 +23,7 @@ class FormatSystem extends System
 
         return [
             "role" => "system",
-            "content" => "отвечаешь только в JSON формате, доступные параметры:\r\n" . implode("\r\n", $prompts)
+            "content" => "Отвечай только в JSON формате, доступные параметры: " . implode("; ", $prompts)
         ];
     }
 }
