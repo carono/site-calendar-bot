@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\components\Bot;
+use Exception;
 use Yii;
 use yii\web\Controller;
 

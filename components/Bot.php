@@ -4,6 +4,7 @@
 namespace app\components;
 
 
+use app\telegram\ChatJoinRequest;
 use carono\telegram\abs\Command;
 use carono\telegram\helpers\StringHelper;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
@@ -50,6 +51,13 @@ class Bot extends \carono\telegram\Bot
     public function process()
     {
         $this->init();
+
+        if (!empty($this->chat_join_request)) {
+            $model = new ChatJoinRequest();
+            $model->handle($this);
+            return '';
+        }
+
         if (!empty($this->callback_query)) {
             $data = $this->callback_query->data;
             $arr = explode('?', $data);
