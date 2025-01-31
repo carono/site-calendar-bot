@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\components\Bot;
+use app\models\TelegramBot;
 use Exception;
 use Yii;
 use yii\web\Controller;
@@ -11,17 +12,19 @@ class CallbackController extends Controller
 {
     public $enableCsrfValidation = false;
 
-    public function actionIndex()
+    public function actionIndex($id)
     {
         $body = \Yii::$app->request->rawBody;
         try {
-            $bot = new Bot();
-            \Yii::info($body, 'telegram-bot');
+            \Yii::info(json_encode(json_decode($body), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'telegram-bot');
+            $model = TelegramBot::findOne($id);
+            $bot = $model->getBot();
             $bot->load($body);
-            return $bot->process();
+            $bot->process();
+            return '200 OK';
         } catch (\Exception $e) {
             \Yii::error($e, 'telegram-bot');
-            return '';
+            return '500 ER';
         }
     }
 
