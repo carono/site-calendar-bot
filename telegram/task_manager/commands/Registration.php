@@ -1,6 +1,6 @@
 <?php
 
-namespace app\telegram\commands;
+namespace app\telegram\task_manager\commands;
 
 use app\components\Bot;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\telegram\commands;
+namespace app\telegram\task_manager\commands;
 
 use app\ai\ActiveTaskSystem;
 use app\ai\DateSystem;
@@ -9,10 +9,7 @@ use app\ai\FormatSystem;
 use app\ai\GroupsSystem;
 use app\exceptions\ValidationException;
 use app\helpers\AIHelper;
-use app\models\Group;
 use carono\telegram\Bot;
-use Exception;
-use RuntimeException;
 use Throwable;
 use Yii;
 use yii\db\Expression;

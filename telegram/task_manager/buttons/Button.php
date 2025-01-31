@@ -1,6 +1,6 @@
 <?php
 
-namespace app\telegram\buttons;
+namespace app\telegram\task_manager\buttons;
 
 
 use app\components\Bot;
