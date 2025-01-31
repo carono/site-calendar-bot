@@ -30,7 +30,8 @@
     "openai-php/client": "^0.8.1",
     "symfony/http-client": "^7.0",
     "nyholm/psr7": "^1.8",
-    "guzzlehttp/guzzle": "^7.8"
+    "guzzlehttp/guzzle": "^7.8",
+    "carono/rest-client": "^0.2.7"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",

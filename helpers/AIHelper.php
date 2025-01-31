@@ -8,6 +8,7 @@ use app\models\gpt\DetermineDTO;
 use GuzzleHttp\Client;
 use OpenAI;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 class AIHelper
 {
@@ -42,25 +43,18 @@ class AIHelper
         return new static();
     }
 
-    public function ask(string $question, $class = null)
+    public function ask(string $question, $messages = [])
     {
         $request = [
             'model' => 'gpt-3.5-turbo',
-            'messages' => array_merge($this->systemCommands, [
+            'messages' => array_merge($messages, [
                 [
                     'role' => 'user',
                     'content' => $question
                 ]
             ])
         ];
-        $response = static::getClient()->chat()->create($request);
-        $content = $response->choices[0]->message->content;
-        file_put_contents(Yii::getAlias('@runtime/cache/request.json'), json_encode($request['messages'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-        file_put_contents(Yii::getAlias('@runtime/cache/response.json'), $content);
-        if ($class) {
-            return new DetermineDTO(json_decode($content, true));
-        }
-        return $content;
+        return static::getClient()->chat()->create($request);
     }
 
     public function determine(string $question)

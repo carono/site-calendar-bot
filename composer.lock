@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fa9e77777b81138b2279852e85379135",
+    "content-hash": "0c624033935199bc315ee3452b2962cc",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -142,6 +142,46 @@
                 "source": "https://github.com/carono/codegen/tree/0.1.1"
             },
             "time": "2022-10-05T09:06:30+00:00"
+        },
+        {
+            "name": "carono/rest-client",
+            "version": "0.2.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/carono/rest-client.git",
+                "reference": "7892fbb0c505c49c89ef9f14b44434e1b6117415"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/carono/rest-client/zipball/7892fbb0c505c49c89ef9f14b44434e1b6117415",
+                "reference": "7892fbb0c505c49c89ef9f14b44434e1b6117415",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "@stable"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "carono\\rest\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aleksandr Kasyanov",
+                    "email": "info@carono.ru",
+                    "homepage": "http://carono.ru"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/carono/rest-client/issues",
+                "source": "https://github.com/carono/rest-client/tree/0.2.7"
+            },
+            "time": "2023-04-09T12:12:11+00:00"
         },
         {
             "name": "carono/telegram-bot-components",
