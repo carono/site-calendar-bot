@@ -3,21 +3,21 @@
 namespace app\commands;
 
 use app\clients\bybit\Client;
-use app\models\Group;
-use app\models\User;
 use app\telegram\crypto_signal\determine\OrderRequest;
 use Yii;
 use yii\console\Controller;
-use yii\helpers\ArrayHelper;
 
 class TestController extends Controller
 {
     public function actionMarket()
     {
         $client = new Client();
-        $client->token = '';
-        $client->secret = '';
-        $response = $client->getOrder();
+        $client->token = Yii::$app->params['market']['bybit']['token'];
+        $client->secret = Yii::$app->params['market']['bybit']['secret'];
+
+//        $response = $client->getOrderbook('spot');
+//        $response = $client->walletBalance('UNIFIED');
+        $response = $client->instrumentsInfo('spot', 'PEPEUSDT');
         print_r($response);
     }
 

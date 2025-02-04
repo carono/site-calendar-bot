@@ -15,7 +15,8 @@ class TelegramBotUserSearch extends \app\models\TelegramBotUser implements \app\
 {
 	public function rules()
 	{
-		return [];
+		return [[['id', 'bot_id', 'chat_id'], 'integer'],
+		[['username', 'start_at', 'last_user_message_at', 'accept_politics_at'], 'safe']];
 	}
 
 

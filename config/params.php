@@ -5,8 +5,10 @@ return [
         'token' => '',
         'name' => ''
     ],
-    'bybit' => [
-        'token' => '',
-        'secret' => ''
+    'market' => [
+        'bybit' => [
+            'token' => '',
+            'secret' => ''
+        ]
     ]
 ];

@@ -15,7 +15,8 @@ class TelegramAiSearch extends \app\models\TelegramAi implements \app\interfaces
 {
 	public function rules()
 	{
-		return [];
+		return [[['id'], 'integer'],
+		[['name', 'slug', 'description'], 'safe']];
 	}
 
 

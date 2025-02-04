@@ -11,12 +11,12 @@ use carono\yii2helpers\SortHelper;
 use yii\data\ActiveDataProvider;
 use yii\data\Sort;
 
-class TelegramBotSearch extends \app\models\TelegramBot implements \app\interfaces\Search
+class CoinSearch extends \app\models\Coin implements \app\interfaces\Search
 {
 	public function rules()
 	{
-		return [[['id', 'telegram_ai_id', 'chat_id'], 'integer'],
-		[['username', 'token'], 'safe']];
+		return [[['id'], 'integer'],
+		[['code', 'name'], 'safe']];
 	}
 
 

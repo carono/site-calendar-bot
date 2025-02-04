@@ -22,7 +22,9 @@ use yii\helpers\ArrayHelper;
  * @property string $updated_at
  *
  * @property \app\models\Group[] $groups
+ * @property \app\models\MarketApi[] $marketApis
  * @property \app\models\Task[] $tasks
+ * @property \app\models\UserWallet[] $userWallets
  */
 class User extends ActiveRecord
 {
@@ -118,11 +120,29 @@ class User extends ActiveRecord
 
 
 	/**
+	 * @return \app\models\query\MarketApiQuery|\yii\db\ActiveQuery
+	 */
+	public function getMarketApis()
+	{
+		return $this->hasMany(\app\models\MarketApi::className(), ['user_id' => 'id']);
+	}
+
+
+	/**
 	 * @return \app\models\query\TaskQuery|\yii\db\ActiveQuery
 	 */
 	public function getTasks()
 	{
 		return $this->hasMany(\app\models\Task::className(), ['user_id' => 'id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\UserWalletQuery|\yii\db\ActiveQuery
+	 */
+	public function getUserWallets()
+	{
+		return $this->hasMany(\app\models\UserWallet::className(), ['user_id' => 'id']);
 	}
 
 
