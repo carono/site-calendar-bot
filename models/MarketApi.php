@@ -6,9 +6,9 @@
 
 namespace app\models;
 
-use app\market\OrderLimitRequest;
-use app\market\OrderLongRequest;
-use app\market\OrderRequest;
+use app\market\order\OrderLimitRequest;
+use app\market\order\OrderLongRequest;
+use app\market\order\OrderRequest;
 
 /**
  * This is the model class for table "market_api".
@@ -32,13 +32,15 @@ class MarketApi extends base\MarketApi
 
     public function order(OrderRequest $request)
     {
+        /**
+         * @var \app\market\Market $client
+         */
         $client = new $this->market->class_name;
         $client->setApi($this);
 
         if ($request instanceof OrderLimitRequest) {
             if (!$request->price) {
                 $request->price = $client->getPrice($request->coin, \app\market\Market::TYPE_SPOT);
-                $request->price -= 0.05;
             }
         }
 
@@ -60,8 +62,11 @@ class MarketApi extends base\MarketApi
             }
         }
 
-        $result = $client->order($request);
-        unset($client);
+        var_dump($request);
+        exit;
+
+//        $result = $client->makeOrder($request);
+//        unset($client);
         return $result;
     }
 

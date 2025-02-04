@@ -17,7 +17,7 @@ class OrderRequest extends Determine
         ];
     }
 
-    function check($message): bool
+    public function check($message): bool
     {
         $system = array_merge($this->getSystem(), [
             [
@@ -40,8 +40,18 @@ class OrderRequest extends Determine
         return is_numeric($result) && (bool)$result;
     }
 
-    function process($message)
+    public function process($message)
     {
+        $content1 = <<<HTML
+ Формат ответа: 
+ type: текст, покупка или продажа (LONG или SHORT) 
+ token: текст, монета; 
+ buy: число, массив цены покупки; 
+ target: массив числовых целей, 
+ stop: число, стоп-лосс или цена продажи
+ Если не сможешь определить данные, указывать NULL,
+ HTML;
+
         $system = array_merge($this->getSystem(), [
             [
                 "role" => "system",
@@ -49,7 +59,7 @@ class OrderRequest extends Determine
             ],
             [
                 'role' => 'system',
-                'content' => 'Формат ответа: type: покупка или продажа (LONG или SHORT); token:монета; buy:цена или диапазон цены покупки; target: это массив числовых целей, stop: стоп-лосс или цена продажи'
+                'content' => $content1
             ]
         ]);
         $response = AIHelper::start()->ask($message, $system);

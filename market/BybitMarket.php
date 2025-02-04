@@ -3,8 +3,9 @@
 namespace app\market;
 
 use app\clients\bybit\Client;
-use app\exceptions\market\MinimumOrderException;
 use app\helpers\RoundHelper;
+use app\market\order\OrderLongRequest;
+use app\market\order\OrderRequest;
 use app\models\Coin;
 use app\models\PvMarketSetting;
 
@@ -68,7 +69,7 @@ class BybitMarket extends Market
         return RoundHelper::stripPrecision($price, $base);
     }
 
-    public function order(OrderRequest $request)
+    public function makeOrder(OrderRequest $request)
     {
         $settings = $this->getCoinSetting($request->coin);
         $client = $this->getClient();

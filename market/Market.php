@@ -2,6 +2,7 @@
 
 namespace app\market;
 
+use app\market\order\OrderLongRequest;
 use app\models\MarketApi;
 
 abstract class Market
@@ -32,7 +33,7 @@ abstract class Market
      */
     abstract public function getWallet();
 
-    abstract public function order(OrderLongRequest $request);
+    abstract public function makeOrder(OrderLongRequest $request);
 
     abstract public function getPrice($coin, $type = self::TYPE_SPOT, $method = self::METHOD_BUY);
 

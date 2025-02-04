@@ -24,6 +24,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property \app\models\Market $market
  * @property \app\models\User $user
+ * @property \app\models\Order[] $orders
  */
 class MarketApi extends ActiveRecord
 {
@@ -127,6 +128,15 @@ class MarketApi extends ActiveRecord
 	public function getUser()
 	{
 		return $this->hasOne(\app\models\User::className(), ['id' => 'user_id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\OrderQuery|\yii\db\ActiveQuery
+	 */
+	public function getOrders()
+	{
+		return $this->hasMany(\app\models\Order::className(), ['market_api_id' => 'id']);
 	}
 
 

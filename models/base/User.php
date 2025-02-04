@@ -23,6 +23,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property \app\models\Group[] $groups
  * @property \app\models\MarketApi[] $marketApis
+ * @property \app\models\Order[] $orders
  * @property \app\models\Task[] $tasks
  * @property \app\models\UserWallet[] $userWallets
  */
@@ -125,6 +126,15 @@ class User extends ActiveRecord
 	public function getMarketApis()
 	{
 		return $this->hasMany(\app\models\MarketApi::className(), ['user_id' => 'id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\OrderQuery|\yii\db\ActiveQuery
+	 */
+	public function getOrders()
+	{
+		return $this->hasMany(\app\models\Order::className(), ['user_id' => 'id']);
 	}
 
 

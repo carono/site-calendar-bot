@@ -1,6 +1,6 @@
 <?php
 
-namespace app\market;
+namespace app\market\order;
 
 class OrderMarketRequest extends OrderRequest
 {

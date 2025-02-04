@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property string $code
  * @property string $name
  *
+ * @property \app\models\Order[] $orders
  * @property \app\models\PvMarketSetting[] $pvMarketSettings
  * @property \app\models\Market[] $markets
  * @property \app\models\UserWallet[] $userWallets
@@ -84,6 +85,15 @@ class Coin extends ActiveRecord
 	public static function find()
 	{
 		return new \app\models\query\CoinQuery(get_called_class());
+	}
+
+
+	/**
+	 * @return \app\models\query\OrderQuery|\yii\db\ActiveQuery
+	 */
+	public function getOrders()
+	{
+		return $this->hasMany(\app\models\Order::className(), ['coin_id' => 'id']);
 	}
 
 
