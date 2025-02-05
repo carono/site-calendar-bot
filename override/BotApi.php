@@ -255,14 +255,13 @@ class BotApi
                 throw new Exception($response['description'], $response['error_code']);
             }
             if (isset($data['chat_id']) && $data['text']) {
-                Yii::error($response);
                 Yii::$app->db
                     ->createCommand()
                     ->insert('{{%telegram_log}}', [
                         'chat_id' => $data['chat_id'],
                         'message' => $data['text'],
                         'is_request' => false,
-                        'message_id' => $response['update_id'],
+                        'update_id' => $response['result']['message_id'],
                         'created_at' => new Expression('NOW()')
                     ])
                     ->execute();

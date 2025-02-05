@@ -70,7 +70,7 @@ HTML;
 
             $message = $this->requestToMessage($request);
 
-            Order::fromRequest($request, $bot->message->message_id);
+            Order::fromRequest($request, $bot->message->message_id, $marketApi);
 
             $bot->sayPrivate($message);
             $transaction->commit();

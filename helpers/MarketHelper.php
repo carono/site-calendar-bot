@@ -6,6 +6,7 @@ use app\exceptions\market\ForbiddenOrderException;
 use app\market\order\OrderLongRequest;
 use app\telegram\crypto_signal\determine\OrderDetermine;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 class MarketHelper
 {
@@ -29,7 +30,16 @@ class MarketHelper
         }
 
         if (isset($response['target'])) {
-            $request->take_profit = min((array)$response['target']);
+            $target = (array)$response['target'];
+            if ($request instanceof OrderLongRequest) {
+                sort($target);
+            } else {
+                asort($target);
+            }
+            $request->take_profit1 = ArrayHelper::getValue($target, 0);
+            $request->take_profit2 = ArrayHelper::getValue($target, 1);
+            $request->take_profit3 = ArrayHelper::getValue($target, 2);
+            $request->take_profit4 = ArrayHelper::getValue($target, 3);
         }
 
         if (isset($response['token'])) {

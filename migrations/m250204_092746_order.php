@@ -16,13 +16,16 @@ class m250204_092746_order extends Migration
                 'type' => $this->char(16),
                 'side' => $this->char(16),
                 'stop_loss' => $this->decimal(30, 20),
-                'take_profit' => $this->decimal(30, 20),
-                'profit_target' => $this->text(),
+                'take_profit1' => $this->decimal(30, 20),
+                'take_profit2' => $this->decimal(30, 20),
+                'take_profit3' => $this->decimal(30, 20),
+                'take_profit4' => $this->decimal(30, 20),
                 'price' => $this->decimal(30, 20),
                 'price_min' => $this->decimal(30, 20),
                 'price_max' => $this->decimal(30, 20),
                 'external_id' => $this->char(64)->unsigned(),
                 'status' => $this->string(),
+                'log_id' => $this->foreignKey('{{%telegram_log}}'),
                 'executed_at' => $this->dateTime()
             ]
         ];
@@ -30,7 +33,11 @@ class m250204_092746_order extends Migration
 
     public function newColumns()
     {
-        return [];
+        return [
+            '{{%telegram_log}}' => [
+                'update_id' => $this->bigInteger()->unsigned(),
+            ],
+        ];
     }
 
     public function newIndex()

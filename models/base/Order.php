@@ -20,15 +20,17 @@ use yii\helpers\ArrayHelper;
  * @property string $type
  * @property string $side
  * @property string $stop_loss
- * @property string $take_profit
- * @property string $profit_target
+ * @property string $take_profit1
+ * @property string $take_profit2
+ * @property string $take_profit3
+ * @property string $take_profit4
  * @property string $price
  * @property string $price_min
  * @property string $price_max
  * @property string $external_id
  * @property string $status
- * @property string $executed_at
  * @property integer $log_id
+ * @property string $executed_at
  *
  * @property \app\models\Coin $coin
  * @property \app\models\MarketApi $marketApi
@@ -53,8 +55,7 @@ class Order extends ActiveRecord
 		return [
 		[['user_id', 'market_api_id', 'coin_id', 'log_id'], 'default', 'value' => null],
 		      [['user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
-		      [['stop_loss', 'take_profit', 'price', 'price_min', 'price_max'], 'number'],
-		      [['profit_target'], 'string'],
+		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max'], 'number'],
 		      [['executed_at'], 'safe'],
 		      [['type', 'side'], 'string', 'max' => 16],
 		      [['external_id'], 'string', 'max' => 64],
@@ -63,7 +64,7 @@ class Order extends ActiveRecord
 		      [['market_api_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\MarketApi::class, 'targetAttribute' => ['market_api_id' => 'id']],
 		      [['log_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\TelegramLog::class, 'targetAttribute' => ['log_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
-		      [['profit_target', 'status'], 'trim']
+		      [['status'], 'trim']
 		];
 	}
 
@@ -105,15 +106,17 @@ class Order extends ActiveRecord
 		    'type' => Yii::t('models', 'Type'),
 		    'side' => Yii::t('models', 'Side'),
 		    'stop_loss' => Yii::t('models', 'Stop Loss'),
-		    'take_profit' => Yii::t('models', 'Take Profit'),
-		    'profit_target' => Yii::t('models', 'Profit Target'),
+		    'take_profit1' => Yii::t('models', 'Take Profit1'),
+		    'take_profit2' => Yii::t('models', 'Take Profit2'),
+		    'take_profit3' => Yii::t('models', 'Take Profit3'),
+		    'take_profit4' => Yii::t('models', 'Take Profit4'),
 		    'price' => Yii::t('models', 'Price'),
 		    'price_min' => Yii::t('models', 'Price Min'),
 		    'price_max' => Yii::t('models', 'Price Max'),
 		    'external_id' => Yii::t('models', 'External ID'),
 		    'status' => Yii::t('models', 'Status'),
-		    'executed_at' => Yii::t('models', 'Executed At'),
-		    'log_id' => Yii::t('models', 'Log ID')
+		    'log_id' => Yii::t('models', 'Log ID'),
+		    'executed_at' => Yii::t('models', 'Executed At')
 		];
 	}
 
