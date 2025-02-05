@@ -25,6 +25,18 @@ class DefaultCommands extends \carono\telegram\abs\Command
         $bot->sayPrivate('message');
     }
 
+    protected function getOrderKeyboard(Order $order)
+    {
+        $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup(
+            [
+                [
+                    ['text' => 'Ознакомиться с правилами', 'callback_data' => 'DefaultButtons/rules']
+                ]
+            ]
+        );
+        return $keyboard;
+    }
+
     protected function requestToMessage(OrderRequest $request)
     {
         if ($request instanceof OrderLongRequest) {
@@ -72,9 +84,10 @@ HTML;
 
             $message = $this->requestToMessage($request);
 
-            Order::fromRequest($request, $bot->message->message_id, $marketApi);
+            $order = Order::fromRequest($request, $bot->message->message_id, $marketApi);
+            $keyboard = $this->getOrderKeyboard($order);
 
-            $bot->sayPrivate($message);
+            $bot->getClient()->sendMessage($bot->getFromId(), $message, null, false, null, $keyboard);
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();

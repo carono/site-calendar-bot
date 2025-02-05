@@ -24,13 +24,14 @@ class Bot extends \carono\telegram\Bot
     protected function beforeRun()
     {
         $text = $this->message->text ?? '';
+        file_put_contents('1.json', json_encode($this->message, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         Yii::$app->db
             ->createCommand()
             ->insert('{{%telegram_log}}', [
                 'chat_id' => $this->getFromId(),
                 'message' => $text,
                 'is_request' => true,
-                'update_id' => $this->message->message_id,
+                'update_id' => $this->message->message_id ?? null,
                 'created_at' => new Expression('NOW()')
             ])
             ->execute();
