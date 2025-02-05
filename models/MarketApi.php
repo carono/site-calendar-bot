@@ -52,8 +52,11 @@ class MarketApi extends base\MarketApi
         }
 
         $request->price = $request->price ? $this->roundPrice($request->price, $request->coin) : $request->price;
-        $request->stop_loss = $request->stop_loss ? $this->roundPrice($request->stop_loss, $request->coin) : $request->stop_loss;
-
+        if (is_null($request->stop_loss)) {
+            $request->stop_loss = $request->stop_loss ? $this->roundPrice($request->stop_loss, $request->coin) : $request->stop_loss;
+        }else{
+            $request->stop_loss = null;
+        }
         $request->take_profit1 = $request->take_profit1 ? $this->roundPrice($request->take_profit1, $request->coin) : $request->take_profit1;
         $request->take_profit2 = $request->take_profit2 ? $this->roundPrice($request->take_profit2, $request->coin) : $request->take_profit2;
         $request->take_profit3 = $request->take_profit3 ? $this->roundPrice($request->take_profit3, $request->coin) : $request->take_profit3;

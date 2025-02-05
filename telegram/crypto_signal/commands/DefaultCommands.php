@@ -32,13 +32,15 @@ class DefaultCommands extends \carono\telegram\abs\Command
         } else {
             $type = '🔴 SHORT';
         }
+        $targets = implode('; ', array_filter([$request->take_profit1, $request->take_profit2, $request->take_profit3, $request->take_profit4]));
+
         $message = <<<HTML
 $type 
  
 🪙 Токен: {$request->coin}
 💰 Текущая цена: {$request->price}
 💰 Вход: {$request->price_min} - {$request->price_max} 
-🎯 Цель: {$request->take_profit}
+🎯 Цель: {$targets}
 ⛔️ Стоп: {$request->stop_loss}
 
 💰 Сумма: {$request->sum} 
