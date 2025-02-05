@@ -8,6 +8,7 @@ namespace app\models;
 
 use app\helpers\RoundHelper;
 use app\market\order\OrderLimitRequest;
+use app\market\order\OrderLongRequest;
 use app\market\order\OrderRequest;
 
 /**
@@ -54,7 +55,7 @@ class MarketApi extends base\MarketApi
         $request->price = $request->price ? $this->roundPrice($request->price, $request->coin) : $request->price;
         if (is_null($request->stop_loss)) {
             $request->stop_loss = $request->stop_loss ? $this->roundPrice($request->stop_loss, $request->coin) : $request->stop_loss;
-        }else{
+        } else {
             $request->stop_loss = null;
         }
         $request->take_profit1 = $request->take_profit1 ? $this->roundPrice($request->take_profit1, $request->coin) : $request->take_profit1;
@@ -65,15 +66,14 @@ class MarketApi extends base\MarketApi
         $request->price_max = $request->price_max ? $this->roundPrice($request->price_max, $request->coin) : $request->price_max;
         $request->price_min = $request->price_min ? $this->roundPrice($request->price_min, $request->coin) : $request->price_min;
 
-//        $request->
-//        if ($request instanceof OrderLimitRequest && !$request->stop_loss) {
-//            $stopLossLevel = $request->price * 0.03;
-//            if ($request instanceof OrderLongRequest) {
-//                $request->stop_loss = $request->price - $stopLossLevel;
-//            } else {
-//                $request->stop_loss = $request->price + $stopLossLevel;
-//            }
-//        }
+        if ($request instanceof OrderLimitRequest && !$request->stop_loss) {
+            $stopLossLevel = $request->price * 0.03;
+            if ($request instanceof OrderLongRequest) {
+                $request->stop_loss = $request->price - $stopLossLevel;
+            } else {
+                $request->stop_loss = $request->price + $stopLossLevel;
+            }
+        }
 
 //        if ($request instanceof OrderLimitRequest && !$request->take_profit) {
 //            $takeProfitLevel = $request->price * 0.05;
@@ -90,7 +90,15 @@ class MarketApi extends base\MarketApi
 
     public function order(OrderRequest $request)
     {
-
+        /**
+         * @var \app\market\Market $client
+         */
+        $client = new $this->market->class_name;
+        $client->setApi($this);
+        $request = $this->prepareOrderRequest($request);
+        $result = $client->makeOrder($request);
+        unset($client);
+        return $result;
     }
 
     public function getSettings($symbol, $type)
@@ -105,7 +113,7 @@ class MarketApi extends base\MarketApi
      * @return PvMarketSetting|array|\yii\db\ActiveRecord|null
      * @throws \app\exceptions\ValidationException
      */
-    protected function getCoinSetting($symbol)
+    public function getCoinSetting($symbol)
     {
         $coinModel = Coin::findOrCreateByCode($symbol);
         $pv = PvMarketSetting::find()->andWhere(['market_id' => $this->market_id, 'coin_id' => $coinModel->id])->cache(10)->one();
@@ -121,8 +129,11 @@ class MarketApi extends base\MarketApi
      * @return string
      * @throws \app\exceptions\ValidationException
      */
-    protected function roundPrice($price, $symbol)
+    public function roundPrice($price, $symbol)
     {
+        if (!$price){
+            return null;
+        }
         $settings = $this->getCoinSetting($symbol);
         $base = RoundHelper::getPrecisionBase($settings->order_precision);
         return RoundHelper::stripPrecision($price, $base);

@@ -6,8 +6,8 @@ use app\clients\bybit\Client;
 use app\helpers\RoundHelper;
 use app\market\order\OrderLongRequest;
 use app\market\order\OrderRequest;
-use app\models\Coin;
 use app\models\PvMarketSetting;
+use Yii;
 
 class BybitMarket extends Market
 {
@@ -53,7 +53,11 @@ class BybitMarket extends Market
      * @throws \app\exceptions\ValidationException
      */
 
-
+    /**
+     * @param OrderRequest $request
+     * @return int|void
+     * @throws \app\exceptions\ValidationException
+     */
     public function makeOrder(OrderRequest $request)
     {
         $settings = $this->getApi()->getCoinSetting($request->coin);
@@ -61,8 +65,8 @@ class BybitMarket extends Market
         $params = [
             'price' => (string)($price = $this->getApi()->roundPrice($request->price, $request->coin)),
             'stopLoss' => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
-            'takeProfit' => (string)$this->getApi()->roundPrice($request->take_profit, $request->coin),
-            "tpLimitPrice" => (string)$this->getApi()->roundPrice($request->take_profit, $request->coin),
+            'takeProfit' => (string)$this->getApi()->roundPrice($request->take_profit1, $request->coin),
+            "tpLimitPrice" => (string)$this->getApi()->roundPrice($request->take_profit1, $request->coin),
             "slLimitPrice" => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
             'timeInForce' => 'PostOnly',
             "tpOrderType" => "Limit",
@@ -77,8 +81,10 @@ class BybitMarket extends Market
 
         $side = $request instanceof OrderLongRequest ? 'Buy' : 'Sell';
         $type = 'Limit';
-        $response = $client->order('spot', $request->coin, $side, $type, (string)$qt, $params);
-        print_r($response);
+        $response = $client->order('spot', $request->coin, $side, $type, (string)$qt, array_filter($params));
+        if (isset($response->result->orderId)) {
+            return (int)$response->result->orderId;
+        }
     }
 
     public function getPrice($coin, $type = self::TYPE_SPOT, $method = self::METHOD_BUY)

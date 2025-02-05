@@ -30,7 +30,7 @@ class DefaultCommands extends \carono\telegram\abs\Command
         $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup(
             [
                 [
-                    ['text' => 'Ознакомиться с правилами', 'callback_data' => 'DefaultButtons/rules']
+                    ['text' => 'Оформить', 'callback_data' => 'DefaultButtons/approve?order_id=' . $order->id]
                 ]
             ]
         );

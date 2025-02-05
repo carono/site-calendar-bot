@@ -8,6 +8,9 @@ namespace app\models;
 
 use app\exceptions\ValidationException;
 use app\market\order\OrderLongRequest;
+use app\market\order\OrderRequest;
+use Exception;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "order".
@@ -36,5 +39,24 @@ class Order extends base\Order
             throw new ValidationException($model);
         }
         return $model;
+    }
+
+    public function execute()
+    {
+        try {
+            $request = new OrderLongRequest();
+            $request->take_profit1 = $this->take_profit1;
+            $request->coin = $this->coin->code;
+            $request->sum = 5;
+            $request->stop_loss = $this->stop_loss;
+            $externalId = $this->marketApi->order($request);
+            $this->updateAttributes([
+                'executed_at' => new Expression('NOW()'),
+                'external_id' => $externalId
+            ]);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }

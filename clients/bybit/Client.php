@@ -2,6 +2,8 @@
 
 namespace app\clients\bybit;
 
+use Yii;
+
 class Client extends \carono\rest\Client
 {
     public $url = 'https://api.bybit.com/v5';
@@ -72,6 +74,7 @@ class Client extends \carono\rest\Client
             'orderType' => (string)$orderType,
             'qty' => (string)$qty,
         ], $params);
+        Yii::error($data);
         return $this->getContent('order/create', $data, ['method' => 'POST']);
     }
 
