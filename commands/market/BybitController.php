@@ -52,4 +52,13 @@ class BybitController extends Controller
             }
         }
     }
+
+    public function actionInfo($id)
+    {
+        $client = new Client();
+        $client->token = Yii::$app->params['market']['bybit']['token'];
+        $client->secret = Yii::$app->params['market']['bybit']['secret'];
+        $response = $client->getOrderInfo('spot', ['orderId' => $id]);
+        print_r($response);
+    }
 }

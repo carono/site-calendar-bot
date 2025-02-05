@@ -5,7 +5,7 @@ namespace app\telegram\crypto_signal\determine;
 use app\helpers\AIHelper;
 use app\telegram\crypto_signal\components\Determine;
 
-class OrderRequest extends Determine
+class OrderDetermine extends Determine
 {
     public function getSystem(): array
     {
@@ -44,12 +44,16 @@ class OrderRequest extends Determine
     {
         $content1 = <<<HTML
  Формат ответа: 
- type: текст, покупка или продажа (LONG или SHORT) 
- token: текст, монета; 
+ Все числа это дробные значения, если в тексте указано число без десятичных значений, добавь точку;
+ 
+ 
+ type: текст, покупка или продажа (LONG или SHORT); 
+ token: текст, монета;
  buy: число, массив цены покупки; 
- target: массив числовых целей, 
- stop: число, стоп-лосс или цена продажи
- Если не сможешь определить данные, указывать NULL,
+ target: массив числовых целей;
+ stop: число, стоп-лосс или цена продажи, если стоп не установлен указывай NULL;
+ 
+ Если не сможешь определить данные, указывать NULL
  HTML;
 
         $system = array_merge($this->getSystem(), [

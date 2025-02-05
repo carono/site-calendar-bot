@@ -11,4 +11,7 @@ namespace app\models;
  */
 class Order extends base\Order
 {
+    public static function fromRequest(\app\market\order\OrderRequest $request, int $message_id)
+    {
+    }
 }

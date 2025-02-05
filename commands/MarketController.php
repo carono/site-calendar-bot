@@ -4,7 +4,7 @@ namespace app\commands;
 
 use app\helpers\MarketHelper;
 use app\models\MarketApi;
-use app\telegram\crypto_signal\determine\OrderRequest;
+use app\telegram\crypto_signal\determine\OrderDetermine;
 use Yii;
 use yii\console\Controller;
 

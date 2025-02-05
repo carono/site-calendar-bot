@@ -4,14 +4,14 @@ namespace app\helpers;
 
 use app\exceptions\market\ForbiddenOrderException;
 use app\market\order\OrderLongRequest;
-use app\telegram\crypto_signal\determine\OrderRequest;
+use app\telegram\crypto_signal\determine\OrderDetermine;
 use Yii;
 
 class MarketHelper
 {
     public static function textToMarketRequest($text)
     {
-        $determine = new OrderRequest();
+        $determine = new OrderDetermine();
         $key = ['gpt', 'determine', md5($text)];
         if (!$response = Yii::$app->cache->get($key)) {
             $response = $determine->process($text);
@@ -28,8 +28,12 @@ class MarketHelper
             $request->price_max = max((array)$response['buy']);
         }
 
+        if (isset($response['target'])) {
+            $request->take_profit = min((array)$response['target']);
+        }
+
         if (isset($response['token'])) {
-            $request->coin = $response['token'];
+            $request->coin = str_replace('/', '', $response['token']);
         }
 
         if (isset($response['stop'])) {

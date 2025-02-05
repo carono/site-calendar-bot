@@ -52,38 +52,23 @@ class BybitMarket extends Market
      * @return PvMarketSetting|array|\yii\db\ActiveRecord|null
      * @throws \app\exceptions\ValidationException
      */
-    protected function getCoinSetting($symbol)
-    {
-        $coinModel = Coin::findOrCreateByCode($symbol);
-        $pv = PvMarketSetting::find()->andWhere(['market_id' => $this->getApi()->market_id, 'coin_id' => $coinModel->id])->cache(10)->one();
-        if (!$pv) {
-            $pv = $coinModel->updateSettings($this->getApi());
-        }
-        return $pv;
-    }
 
-    protected function roundPrice($price, $symbol)
-    {
-        $pv = $this->getCoinSetting($symbol);
-        $base = RoundHelper::getPrecisionBase($pv->order_precision);
-        return RoundHelper::stripPrecision($price, $base);
-    }
 
     public function makeOrder(OrderRequest $request)
     {
-        $settings = $this->getCoinSetting($request->coin);
+        $settings = $this->getApi()->getCoinSetting($request->coin);
         $client = $this->getClient();
         $params = [
-            'price' => (string)($price = $this->roundPrice($request->price, $request->coin)),
-            'stopLoss' => (string)$this->roundPrice($request->stop_loss, $request->coin),
-            'takeProfit' => (string)$this->roundPrice($request->take_profit, $request->coin),
-            "tpLimitPrice" => (string)$this->roundPrice($request->take_profit, $request->coin),
-            "slLimitPrice" => (string)$this->roundPrice($request->stop_loss, $request->coin),
+            'price' => (string)($price = $this->getApi()->roundPrice($request->price, $request->coin)),
+            'stopLoss' => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
+            'takeProfit' => (string)$this->getApi()->roundPrice($request->take_profit, $request->coin),
+            "tpLimitPrice" => (string)$this->getApi()->roundPrice($request->take_profit, $request->coin),
+            "slLimitPrice" => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
             'timeInForce' => 'PostOnly',
             "tpOrderType" => "Limit",
             "slOrderType" => "Limit"
         ];
-        $base = RoundHelper::getPrecisionBase($this->getCoinSetting($request->coin)->base_precision);
+        $base = RoundHelper::getPrecisionBase($this->getApi()->getCoinSetting($request->coin)->base_precision);
 
         $qt = round($request->sum / $price, $base);
         while ($settings->min_amount > ($qt * $price)) {
@@ -105,5 +90,10 @@ class BybitMarket extends Market
             return $result->a[0][0];
         }
         return $result->b[0][0];
+    }
+
+    public function getOrderInfo($external_id)
+    {
+        return $this->getClient()->getOrderInfo('spot', ['orderId' => $external_id]);
     }
 }

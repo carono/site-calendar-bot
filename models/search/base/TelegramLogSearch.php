@@ -15,7 +15,7 @@ class TelegramLogSearch extends \app\models\TelegramLog implements \app\interfac
 {
 	public function rules()
 	{
-		return [[['id', 'chat_id'], 'integer'],
+		return [[['id', 'chat_id', 'update_id'], 'integer'],
 		[['is_request'], 'boolean'],
 		[['message', 'created_at'], 'safe']];
 	}

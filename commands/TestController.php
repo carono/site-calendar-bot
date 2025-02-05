@@ -3,7 +3,7 @@
 namespace app\commands;
 
 use app\clients\bybit\Client;
-use app\telegram\crypto_signal\determine\OrderRequest;
+use app\telegram\crypto_signal\determine\OrderDetermine;
 use Yii;
 use yii\console\Controller;
 
@@ -61,7 +61,7 @@ HTML;
 HTML;
 
 
-        $determine = new OrderRequest();
+        $determine = new OrderDetermine();
 
 
 //       $result =  $determine->check($message);

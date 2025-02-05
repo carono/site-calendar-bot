@@ -15,7 +15,9 @@ class OrderSearch extends \app\models\Order implements \app\interfaces\Search
 {
 	public function rules()
 	{
-		return [];
+		return [[['id', 'user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
+		[['type', 'side', 'profit_target', 'external_id', 'status', 'executed_at'], 'safe'],
+		[['stop_loss', 'take_profit', 'price', 'price_min', 'price_max'], 'number']];
 	}
 
 

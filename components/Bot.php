@@ -30,6 +30,7 @@ class Bot extends \carono\telegram\Bot
                 'chat_id' => $this->getFromId(),
                 'message' => $text,
                 'is_request' => true,
+                'update_id' => $this->message->message_id,
                 'created_at' => new Expression('NOW()')
             ])
             ->execute();

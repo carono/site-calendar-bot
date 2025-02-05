@@ -17,7 +17,10 @@ use yii\helpers\ArrayHelper;
  * @property integer $chat_id
  * @property boolean $is_request
  * @property string $message
+ * @property integer $update_id
  * @property string $created_at
+ *
+ * @property \app\models\Order[] $orders
  */
 class TelegramLog extends ActiveRecord
 {
@@ -43,8 +46,8 @@ class TelegramLog extends ActiveRecord
 	public function rules()
 	{
 		return [
-		[['chat_id'], 'default', 'value' => null],
-		      [['chat_id'], 'integer'],
+		[['chat_id', 'update_id'], 'default', 'value' => null],
+		      [['chat_id', 'update_id'], 'integer'],
 		      [['is_request'], 'required'],
 		      [['is_request'], 'boolean'],
 		      [['message'], 'string'],
@@ -87,7 +90,8 @@ class TelegramLog extends ActiveRecord
 		    'chat_id' => Yii::t('models', 'Chat ID'),
 		    'is_request' => Yii::t('models', 'Is Request'),
 		    'message' => Yii::t('models', 'Message'),
-		    'created_at' => Yii::t('models', 'Created At')
+		    'created_at' => Yii::t('models', 'Created At'),
+		    'update_id' => Yii::t('models', 'Update ID')
 		];
 	}
 
@@ -99,6 +103,15 @@ class TelegramLog extends ActiveRecord
 	public static function find()
 	{
 		return new \app\models\query\TelegramLogQuery(get_called_class());
+	}
+
+
+	/**
+	 * @return \app\models\query\OrderQuery|\yii\db\ActiveQuery
+	 */
+	public function getOrders()
+	{
+		return $this->hasMany(\app\models\Order::className(), ['log_id' => 'id']);
 	}
 
 

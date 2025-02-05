@@ -255,12 +255,14 @@ class BotApi
                 throw new Exception($response['description'], $response['error_code']);
             }
             if (isset($data['chat_id']) && $data['text']) {
+                Yii::error($response);
                 Yii::$app->db
                     ->createCommand()
                     ->insert('{{%telegram_log}}', [
                         'chat_id' => $data['chat_id'],
                         'message' => $data['text'],
                         'is_request' => false,
+                        'message_id' => $response['update_id'],
                         'created_at' => new Expression('NOW()')
                     ])
                     ->execute();
@@ -373,8 +375,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendMessage', [
             'chat_id' => $chatId,
             'text' => $text,
@@ -421,8 +422,7 @@ class BotApi
         $replyMarkup = null,
         $messageThreadId = null,
         $protectContent = null
-    )
-    {
+    ) {
         return MessageId::fromResponse($this->call('copyMessage', [
             'chat_id' => $chatId,
             'from_chat_id' => $fromChatId,
@@ -467,8 +467,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendContact', [
             'chat_id' => $chatId,
             'phone_number' => $phoneNumber,
@@ -566,8 +565,7 @@ class BotApi
         $allowedUpdates = null,
         $dropPendingUpdates = false,
         $secretToken = null
-    )
-    {
+    ) {
         return $this->call('setWebhook', [
             'url' => $url,
             'certificate' => $certificate,
@@ -682,8 +680,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendLocation', [
             'chat_id' => $chatId,
             'latitude' => $latitude,
@@ -720,8 +717,7 @@ class BotApi
         $latitude,
         $longitude,
         $replyMarkup = null
-    )
-    {
+    ) {
         $response = $this->call('editMessageLiveLocation', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -756,8 +752,7 @@ class BotApi
         $messageId,
         $inlineMessageId,
         $replyMarkup = null
-    )
-    {
+    ) {
         $response = $this->call('stopMessageLiveLocation', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -803,8 +798,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendVenue', [
             'chat_id' => $chatId,
             'latitude' => $latitude,
@@ -846,8 +840,7 @@ class BotApi
         $protectContent = false,
         $allowSendingWithoutReply = false,
         $messageThreadId = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendSticker', [
             'chat_id' => $chatId,
             'sticker' => $sticker,
@@ -955,8 +948,7 @@ class BotApi
         $stickerType = null,
         $maskPosition = null,
         $attachments = []
-    )
-    {
+    ) {
         return $this->call('createNewStickerSet', [
                 'user_id' => $userId,
                 'name' => $name,
@@ -1000,8 +992,7 @@ class BotApi
         $webmSticker = null,
         $maskPosition = null,
         $attachments = []
-    )
-    {
+    ) {
         return $this->call('addStickerToSet', [
                 'user_id' => $userId,
                 'name' => $name,
@@ -1116,8 +1107,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $thumbnail = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendVideo', [
             'chat_id' => $chatId,
             'video' => $video,
@@ -1170,8 +1160,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $thumbnail = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendAnimation', [
             'chat_id' => $chatId,
             'animation' => $animation,
@@ -1225,8 +1214,7 @@ class BotApi
         $parseMode = null,
         $messageThreadId = null,
         $protectContent = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendVoice', [
             'chat_id' => $chatId,
             'voice' => $voice,
@@ -1265,8 +1253,7 @@ class BotApi
         $protectContent = false,
         $disableNotification = false,
         $messageThreadId = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('forwardMessage', [
             'chat_id' => $chatId,
             'from_chat_id' => $fromChatId,
@@ -1323,8 +1310,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $thumbnail = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendAudio', [
             'chat_id' => $chatId,
             'audio' => $audio,
@@ -1370,8 +1356,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendPhoto', [
             'chat_id' => $chatId,
             'photo' => $photo,
@@ -1418,8 +1403,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $thumbnail = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendDocument', [
             'chat_id' => $chatId,
             'document' => $document,
@@ -1501,8 +1485,7 @@ class BotApi
         $nextOffset = '',
         $switchPmText = null,
         $switchPmParameter = null
-    )
-    {
+    ) {
         $results = array_map(
         /**
          * @param AbstractInlineQueryResult $item
@@ -1692,8 +1675,7 @@ class BotApi
         $disablePreview = false,
         $replyMarkup = null,
         $inlineMessageId = null
-    )
-    {
+    ) {
         $response = $this->call('editMessageText', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -1732,8 +1714,7 @@ class BotApi
         $replyMarkup = null,
         $inlineMessageId = null,
         $parseMode = null
-    )
-    {
+    ) {
         $response = $this->call('editMessageCaption', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -1777,8 +1758,7 @@ class BotApi
         $inlineMessageId = null,
         $replyMarkup = null,
         $attachments = []
-    )
-    {
+    ) {
         $response = $this->call('editMessageMedia', [
                 'chat_id' => $chatId,
                 'message_id' => $messageId,
@@ -1810,8 +1790,7 @@ class BotApi
         $messageId,
         $replyMarkup = null,
         $inlineMessageId = null
-    )
-    {
+    ) {
         $response = $this->call('editMessageReplyMarkup', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -1973,8 +1952,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendInvoice', [
             'chat_id' => $chatId,
             'title' => $title,
@@ -2078,8 +2056,7 @@ class BotApi
         $canSendMediaMessages = false,
         $canSendOtherMessages = false,
         $canAddWebPagePreviews = false
-    )
-    {
+    ) {
         return $this->call('restrictChatMember', [
             'chat_id' => $chatId,
             'user_id' => $userId,
@@ -2130,8 +2107,7 @@ class BotApi
         $canPromoteMembers = true,
         $canManageTopics = true,
         $isAnonymous = false
-    )
-    {
+    ) {
         return $this->call('promoteChatMember', [
             'chat_id' => $chatId,
             'user_id' => $userId,
@@ -2418,8 +2394,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $thumbnail = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendVideoNote', [
             'chat_id' => $chatId,
             'video_note' => $videoNote,
@@ -2460,8 +2435,7 @@ class BotApi
         $protectContent = null,
         $allowSendingWithoutReply = null,
         $attachments = []
-    )
-    {
+    ) {
         return ArrayOfMessages::fromResponse($this->call('sendMediaGroup', [
                 'chat_id' => $chatId,
                 'media' => $media->toJson(),
@@ -2542,8 +2516,7 @@ class BotApi
         $messageThreadId = null,
         $protectContent = null,
         $allowSendingWithoutReply = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendPoll', [
             'chat_id' => $chatId,
             'question' => $question,
@@ -2596,8 +2569,7 @@ class BotApi
         $replyMarkup = null,
         $messageThreadId = null,
         $protectContent = null
-    )
-    {
+    ) {
         return Message::fromResponse($this->call('sendDice', [
             'chat_id' => $chatId,
             'emoji' => $emoji,
@@ -2625,8 +2597,7 @@ class BotApi
         $chatId,
         $messageId,
         $replyMarkup = null
-    )
-    {
+    ) {
         return Poll::fromResponse($this->call('stopPoll', [
             'chat_id' => $chatId,
             'message_id' => $messageId,
@@ -2659,8 +2630,7 @@ class BotApi
         $name,
         $iconColor,
         $iconCustomEmojiId = null
-    )
-    {
+    ) {
         return ForumTopic::fromResponse($this->call('createForumTopic', [
             'chat_id' => $chatId,
             'name' => $name,
@@ -2690,8 +2660,7 @@ class BotApi
         $messageThreadId,
         $name,
         $iconCustomEmojiId = null
-    )
-    {
+    ) {
         return $this->call('editForumTopic', [
             'chat_id' => $chatId,
             'message_thread_id' => $messageThreadId,

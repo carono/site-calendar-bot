@@ -28,9 +28,11 @@ use yii\helpers\ArrayHelper;
  * @property string $external_id
  * @property string $status
  * @property string $executed_at
+ * @property integer $log_id
  *
  * @property \app\models\Coin $coin
  * @property \app\models\MarketApi $marketApi
+ * @property \app\models\TelegramLog $log
  * @property \app\models\User $user
  */
 class Order extends ActiveRecord
@@ -38,6 +40,7 @@ class Order extends ActiveRecord
 	protected $_relationClasses = [
 		'coin_id' => 'app\models\Coin',
 		'market_api_id' => 'app\models\MarketApi',
+		'log_id' => 'app\models\TelegramLog',
 		'user_id' => 'app\models\User',
 	];
 
@@ -48,8 +51,8 @@ class Order extends ActiveRecord
 	public function rules()
 	{
 		return [
-		[['user_id', 'market_api_id', 'coin_id'], 'default', 'value' => null],
-		      [['user_id', 'market_api_id', 'coin_id'], 'integer'],
+		[['user_id', 'market_api_id', 'coin_id', 'log_id'], 'default', 'value' => null],
+		      [['user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
 		      [['stop_loss', 'take_profit', 'price', 'price_min', 'price_max'], 'number'],
 		      [['profit_target'], 'string'],
 		      [['executed_at'], 'safe'],
@@ -58,6 +61,7 @@ class Order extends ActiveRecord
 		      [['status'], 'string', 'max' => 255],
 		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']],
 		      [['market_api_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\MarketApi::class, 'targetAttribute' => ['market_api_id' => 'id']],
+		      [['log_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\TelegramLog::class, 'targetAttribute' => ['log_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
 		      [['profit_target', 'status'], 'trim']
 		];
@@ -108,7 +112,8 @@ class Order extends ActiveRecord
 		    'price_max' => Yii::t('models', 'Price Max'),
 		    'external_id' => Yii::t('models', 'External ID'),
 		    'status' => Yii::t('models', 'Status'),
-		    'executed_at' => Yii::t('models', 'Executed At')
+		    'executed_at' => Yii::t('models', 'Executed At'),
+		    'log_id' => Yii::t('models', 'Log ID')
 		];
 	}
 
@@ -138,6 +143,15 @@ class Order extends ActiveRecord
 	public function getMarketApi()
 	{
 		return $this->hasOne(\app\models\MarketApi::className(), ['id' => 'market_api_id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\TelegramLogQuery|\yii\db\ActiveQuery
+	 */
+	public function getLog()
+	{
+		return $this->hasOne(\app\models\TelegramLog::className(), ['id' => 'log_id']);
 	}
 
 

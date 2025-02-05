@@ -20,8 +20,8 @@ class Client extends \carono\rest\Client
                 'X-BAPI-API-KEY' => $this->token,
                 'X-BAPI-RECV-WINDOW' => 5000,
             ],
-            'proxy' => '192.168.1.254:8888',
-            'verify' => false
+//            'proxy' => '192.168.1.254:8888',
+//            'verify' => false
         ];
     }
 
@@ -82,5 +82,13 @@ class Client extends \carono\rest\Client
             'symbol' => $symbol
         ];
         return $this->getContent('market/instruments-info', $data);
+    }
+
+    public function getOrderInfo($category, $params = [])
+    {
+        $data = array_merge([
+            'category' => $category
+        ], $params);
+        return $this->getContent('order/realtime', $data);
     }
 }
