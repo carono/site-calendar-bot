@@ -66,11 +66,11 @@ class BybitMarket extends Market
             'price' => (string)($price = $this->getApi()->roundPrice($request->price, $request->coin)),
             'stopLoss' => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
             'takeProfit' => (string)$this->getApi()->roundPrice($request->take_profit1, $request->coin),
-            "tpLimitPrice" => (string)$this->getApi()->roundPrice($request->take_profit1, $request->coin),
-            "slLimitPrice" => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
-            'timeInForce' => 'PostOnly',
-            "tpOrderType" => "Limit",
-            "slOrderType" => "Limit"
+//            "tpLimitPrice" => (string)$this->getApi()->roundPrice($request->take_profit1, $request->coin),
+//            "slLimitPrice" => (string)$this->getApi()->roundPrice($request->stop_loss, $request->coin),
+            'timeInForce' => 'GTC',
+            "tpOrderType" => "Market",
+            "slOrderType" => "Market"
         ];
         $base = RoundHelper::getPrecisionBase($this->getApi()->getCoinSetting($request->coin)->base_precision);
 

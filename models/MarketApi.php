@@ -67,7 +67,7 @@ class MarketApi extends base\MarketApi
         $request->price_min = $request->price_min ? $this->roundPrice($request->price_min, $request->coin) : $request->price_min;
 
         if ($request instanceof OrderLimitRequest && !$request->stop_loss) {
-            $stopLossLevel = $request->price * 0.03;
+            $stopLossLevel = $request->price * 0.1;
             if ($request instanceof OrderLongRequest) {
                 $request->stop_loss = $request->price - $stopLossLevel;
             } else {
