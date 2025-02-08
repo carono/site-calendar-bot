@@ -32,7 +32,8 @@
     "nyholm/psr7": "^1.8",
     "guzzlehttp/guzzle": "^7.8",
     "carono/rest-client": "^0.2.7",
-    "ext-bcmath": "*"
+    "ext-bcmath": "*",
+    "carono/yii2-telegram-target-log": "@dev"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",

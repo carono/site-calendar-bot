@@ -1,4 +1,8 @@
 <?php
+
+use app\components\Bot;
+use carono\yii2log\TelegramTarget;
+
 return [
     'traceLevel' => YII_DEBUG ? 3 : 0,
     'targets' => [
@@ -12,6 +16,19 @@ return [
             'logFile' => '@app/runtime/logs/telegram-bot.log',
             'logVars' => [],
             'levels' => ['error', 'warning', 'info'],
+        ],
+        [
+            'class' => TelegramTarget::class,
+            'categories' => ['telegram'],
+            'sendMessage' => function ($message) {
+                $token = Yii::$app->params['telegram']['token'];
+                $bot = new Bot();
+                $bot->token = $token;
+                $bot->getClient()->sendMessage('85220320', $message);
+            },
+            'logFile' => '@app/runtime/logs/telegram-bot.log',
+            'logVars' => [],
+            'levels' => ['error'],
         ],
         [
             'class' => 'yii\log\FileTarget',

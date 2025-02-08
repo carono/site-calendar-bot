@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c624033935199bc315ee3452b2962cc",
+    "content-hash": "0984fc7d22c5b07f526c415258856e24",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -315,6 +315,49 @@
                 "source": "https://github.com/carono/yii2-migrate/tree/1.1.5"
             },
             "time": "2020-12-19T10:53:29+00:00"
+        },
+        {
+            "name": "carono/yii2-telegram-target-log",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/carono/yii2-telegram-target-log.git",
+                "reference": "c3bfba0245a87af38a60d43cabef016d36b31fa7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/carono/yii2-telegram-target-log/zipball/c3bfba0245a87af38a60d43cabef016d36b31fa7",
+                "reference": "c3bfba0245a87af38a60d43cabef016d36b31fa7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8",
+                "yiisoft/yii2": "~2.0"
+            },
+            "default-branch": true,
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "carono\\yii2log\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aleksandr Kasyanov",
+                    "email": "info@carono.ru",
+                    "homepage": "https://carono.ru"
+                }
+            ],
+            "description": "Yii2 telegram target log",
+            "support": {
+                "issues": "https://github.com/carono/yii2-telegram-target-log/issues",
+                "source": "https://github.com/carono/yii2-telegram-target-log/tree/master"
+            },
+            "time": "2024-01-29T05:09:08+00:00"
         },
         {
             "name": "cebe/markdown",
@@ -4196,12 +4239,14 @@
         "carono/yii2-migrate": 0,
         "carono/yii2-giix": 0,
         "carono/telegram-bot-components": 20,
-        "symfony/cache": 0
+        "symfony/cache": 0,
+        "carono/yii2-telegram-target-log": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.2.0"
+        "php": ">=8.2.0",
+        "ext-bcmath": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"
