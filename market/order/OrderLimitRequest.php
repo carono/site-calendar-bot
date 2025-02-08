@@ -2,7 +2,7 @@
 
 namespace app\market\order;
 
-class OrderLimitRequest extends Order
+class OrderLimitRequest extends OrderRequest
 {
 
 

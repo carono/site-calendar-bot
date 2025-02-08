@@ -2,7 +2,7 @@
 
 namespace app\market\order;
 
-class OrderMarketRequest extends Order
+class OrderMarketRequest extends OrderRequest
 {
 
 }
