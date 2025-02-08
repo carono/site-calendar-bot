@@ -3,7 +3,6 @@
 namespace app\telegram\crypto_signal\commands;
 
 use app\helpers\MarketHelper;
-use app\market\order\OrderLongRequest;
 use app\models\MarketApi;
 use app\models\Order;
 use carono\telegram\Bot;
@@ -78,6 +77,7 @@ HTML;
 
 
             $order = Order::fromRequest($request, $bot->message->message_id, $marketApi);
+
             $message = $this->orderToMessage($order);
 
             $keyboard = $this->getOrderKeyboard($order);

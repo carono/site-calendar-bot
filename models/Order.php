@@ -8,7 +8,6 @@ namespace app\models;
 
 use app\exceptions\ValidationException;
 use app\market\order\OrderLongRequest;
-use app\market\order\Order;
 use Exception;
 use yii\db\Expression;
 

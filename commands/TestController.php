@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\clients\bybit\Client;
+use app\components\Bot;
 use app\telegram\crypto_signal\determine\SignalDetermine;
 use Yii;
 use yii\console\Controller;
@@ -23,6 +24,8 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-        Yii::info('test', 'telegram');
+        Yii::error('test', 'telegram');
+
+
     }
 }

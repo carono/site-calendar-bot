@@ -20,13 +20,13 @@ return [
         [
             'class' => TelegramTarget::class,
             'categories' => ['telegram'],
-            'sendMessage' => function ($message) {
+            'chatId' => '85220320',
+            'sendMessage' => function ($message, $chatId) {
                 $token = Yii::$app->params['telegram']['token'];
                 $bot = new Bot();
                 $bot->token = $token;
-                $bot->getClient()->sendMessage('85220320', $message);
+                $bot->getClient()->sendMessage($chatId, $message);
             },
-            'logFile' => '@app/runtime/logs/telegram-bot.log',
             'logVars' => [],
             'levels' => ['error'],
         ],

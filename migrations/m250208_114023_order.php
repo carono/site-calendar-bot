@@ -16,7 +16,8 @@ class m250208_114023_order extends Migration
             '{{%order}}' => [
                 'sum' => $this->decimal(10, 4),
                 'price_fact' => $this->decimal(10, 4),
-                'break_even_percent' => $this->decimal(10, 4)
+                'break_even_percent' => $this->decimal(10, 4),
+                'created_at' => $this->dateTime()
             ],
             '{{%market_api}}' => [
                 'default_stop_loss_percent' => $this->decimal(10, 4),

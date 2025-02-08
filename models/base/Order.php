@@ -34,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property string $sum
  * @property string $price_fact
  * @property string $break_even_percent
+ * @property string $created_at
  *
  * @property \app\models\Coin $coin
  * @property \app\models\MarketApi $marketApi
@@ -48,6 +49,19 @@ class Order extends ActiveRecord
 		'log_id' => 'app\models\TelegramLog',
 		'user_id' => 'app\models\User',
 	];
+
+
+	public function behaviors()
+	{
+		return [
+		    'timestamp' => [
+		        'class' => 'yii\behaviors\TimestampBehavior',
+		        'value' => new \yii\db\Expression('NOW()'),
+		        'createdAtAttribute' => 'created_at',
+		        'updatedAtAttribute' => null
+		    ]
+		];
+	}
 
 
 	/**
@@ -122,7 +136,8 @@ class Order extends ActiveRecord
 		    'executed_at' => Yii::t('models', 'Executed At'),
 		    'sum' => Yii::t('models', 'Sum'),
 		    'price_fact' => Yii::t('models', 'Price Fact'),
-		    'break_even_percent' => Yii::t('models', 'Break Even Percent')
+		    'break_even_percent' => Yii::t('models', 'Break Even Percent'),
+		    'created_at' => Yii::t('models', 'Created At')
 		];
 	}
 
