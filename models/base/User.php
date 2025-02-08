@@ -18,6 +18,8 @@ use yii\helpers\ArrayHelper;
  * @property string $chat_name
  * @property string $phone
  * @property integer $daily_task_avg_count
+ * @property string $default_stop_loss_percent
+ * @property string $default_break_even_percent
  * @property string $created_at
  * @property string $updated_at
  *
@@ -53,6 +55,7 @@ class User extends ActiveRecord
 		return [
 		[['chat_id', 'daily_task_avg_count'], 'default', 'value' => null],
 		      [['chat_id', 'daily_task_avg_count'], 'integer'],
+		      [['default_stop_loss_percent', 'default_break_even_percent'], 'number'],
 		      [['chat_name'], 'string', 'max' => 255],
 		      [['phone'], 'string', 'max' => 12],
 		      [['chat_id'], 'unique']
@@ -96,7 +99,9 @@ class User extends ActiveRecord
 		    'phone' => Yii::t('models', 'Phone'),
 		    'created_at' => Yii::t('models', 'Created At'),
 		    'updated_at' => Yii::t('models', 'Updated At'),
-		    'daily_task_avg_count' => Yii::t('models', 'Daily Task Avg Count')
+		    'daily_task_avg_count' => Yii::t('models', 'Daily Task Avg Count'),
+		    'default_stop_loss_percent' => Yii::t('models', 'Default Stop Loss Percent'),
+		    'default_break_even_percent' => Yii::t('models', 'Default Break Even Percent')
 		];
 	}
 

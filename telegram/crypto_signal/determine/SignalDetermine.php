@@ -5,7 +5,7 @@ namespace app\telegram\crypto_signal\determine;
 use app\helpers\AIHelper;
 use app\telegram\crypto_signal\components\Determine;
 
-class OrderDetermine extends Determine
+class SignalDetermine extends Determine
 {
     public function getSystem(): array
     {

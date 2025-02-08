@@ -8,7 +8,7 @@ namespace app\models;
 
 use app\exceptions\ValidationException;
 use app\market\order\OrderLongRequest;
-use app\market\order\OrderRequest;
+use app\market\order\Order;
 use Exception;
 use yii\db\Expression;
 
@@ -17,7 +17,7 @@ use yii\db\Expression;
  */
 class Order extends base\Order
 {
-    public static function fromRequest(\app\market\order\OrderRequest $request, $message_id, MarketApi $marketApi)
+    public static function fromRequest(\app\market\order\Order $request, $message_id, MarketApi $marketApi)
     {
         $model = new static();
         $model->user_id = $marketApi->user_id;
@@ -47,9 +47,11 @@ class Order extends base\Order
             $request = new OrderLongRequest();
             $request->take_profit1 = $this->take_profit1;
             $request->coin = $this->coin->code;
-            $request->sum = 5;
+            $request->sum = $this->sum;
             $request->stop_loss = $this->stop_loss;
-            $externalId = $this->marketApi->order($request);
+            if (!$externalId = $this->marketApi->order($request)) {
+                throw new Exception('Fail send order');
+            }
             $this->updateAttributes([
                 'executed_at' => new Expression('NOW()'),
                 'external_id' => $externalId

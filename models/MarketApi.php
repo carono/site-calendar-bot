@@ -9,7 +9,7 @@ namespace app\models;
 use app\helpers\RoundHelper;
 use app\market\order\OrderLimitRequest;
 use app\market\order\OrderLongRequest;
-use app\market\order\OrderRequest;
+use app\market\order\Order;
 
 /**
  * This is the model class for table "market_api".
@@ -38,7 +38,19 @@ class MarketApi extends base\MarketApi
         return $client->getOrderInfo($external_id);
     }
 
-    public function prepareOrderRequest(OrderRequest $request)
+    protected function setDefaultStopLoss(Order $request)
+    {
+        if ($request instanceof OrderLimitRequest) {
+            $stopLossLevel = $request->price * 0.03;
+            if ($request instanceof OrderLongRequest) {
+                $request->stop_loss = $request->price - $stopLossLevel;
+            } else {
+                $request->stop_loss = $request->price + $stopLossLevel;
+            }
+        }
+    }
+
+    public function prepareOrderRequest(Order $request)
     {
         /**
          * @var \app\market\Market $client
@@ -53,11 +65,7 @@ class MarketApi extends base\MarketApi
         }
 
         $request->price = $request->price ? $this->roundPrice($request->price, $request->coin) : $request->price;
-        if (is_null($request->stop_loss)) {
-            $request->stop_loss = $request->stop_loss ? $this->roundPrice($request->stop_loss, $request->coin) : $request->stop_loss;
-        } else {
-            $request->stop_loss = null;
-        }
+
         $request->take_profit1 = $request->take_profit1 ? $this->roundPrice($request->take_profit1, $request->coin) : $request->take_profit1;
         $request->take_profit2 = $request->take_profit2 ? $this->roundPrice($request->take_profit2, $request->coin) : $request->take_profit2;
         $request->take_profit3 = $request->take_profit3 ? $this->roundPrice($request->take_profit3, $request->coin) : $request->take_profit3;
@@ -66,21 +74,23 @@ class MarketApi extends base\MarketApi
         $request->price_max = $request->price_max ? $this->roundPrice($request->price_max, $request->coin) : $request->price_max;
         $request->price_min = $request->price_min ? $this->roundPrice($request->price_min, $request->coin) : $request->price_min;
 
-        if ($request instanceof OrderLimitRequest && !$request->stop_loss) {
-            $stopLossLevel = $request->price * 0.1;
-            if ($request instanceof OrderLongRequest) {
-                $request->stop_loss = $request->price - $stopLossLevel;
-            } else {
-                $request->stop_loss = $request->price + $stopLossLevel;
-            }
+        if (is_null($request->stop_loss)) {
+            $this->setDefaultStopLoss($request);
         }
+
+
+//        if (is_null($request->stop_loss)) {
+//            $request->stop_loss = $request->stop_loss ? $this->roundPrice($request->stop_loss, $request->coin) : $request->stop_loss;
+//        } else {
+//            $request->stop_loss = null;
+//        }
 
 //        if ($request instanceof OrderLimitRequest && !$request->take_profit) {
 //            $takeProfitLevel = $request->price * 0.05;
 //            if ($request instanceof OrderLongRequest) {
-//                $request->take_profit = $request->price + $takeProfitLevel;
+//                $request->take_profit1 = $request->price + $takeProfitLevel;
 //            } else {
-//                $request->take_profit = $request->price - $takeProfitLevel;
+//                $request->take_profit1 = $request->price - $takeProfitLevel;
 //            }
 //        }
 
@@ -88,7 +98,7 @@ class MarketApi extends base\MarketApi
         return $request;
     }
 
-    public function order(OrderRequest $request)
+    public function order(Order $request)
     {
         /**
          * @var \app\market\Market $client
@@ -131,7 +141,7 @@ class MarketApi extends base\MarketApi
      */
     public function roundPrice($price, $symbol)
     {
-        if (!$price){
+        if (!$price) {
             return null;
         }
         $settings = $this->getCoinSetting($symbol);

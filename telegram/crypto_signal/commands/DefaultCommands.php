@@ -4,7 +4,6 @@ namespace app\telegram\crypto_signal\commands;
 
 use app\helpers\MarketHelper;
 use app\market\order\OrderLongRequest;
-use app\market\order\OrderRequest;
 use app\models\MarketApi;
 use app\models\Order;
 use carono\telegram\Bot;
@@ -37,25 +36,21 @@ class DefaultCommands extends \carono\telegram\abs\Command
         return $keyboard;
     }
 
-    protected function requestToMessage(OrderRequest $request)
+    protected function orderToMessage(Order $order)
     {
-        if ($request instanceof OrderLongRequest) {
-            $type = '🟢 LONG';
-        } else {
-            $type = '🔴 SHORT';
-        }
-        $targets = implode('; ', array_filter([$request->take_profit1, $request->take_profit2, $request->take_profit3, $request->take_profit4]));
-
+        $type = $order->side == 'buy' ? '🟢 LONG' : '🔴 SHORT';
+//        $targets = implode('; ', array_filter([$order->take_profit1, $order->take_profit2, $order->take_profit3, $order->take_profit4]));
+        $targets = '';
         $message = <<<HTML
 $type 
  
-🪙 Токен: {$request->coin}
-💰 Текущая цена: {$request->price}
-💰 Вход: {$request->price_min} - {$request->price_max} 
+🪙 Токен: {$order->coin}
+💰 Текущая цена: {$order->price}
+💰 Вход: {$order->price_min} - {$order->price_max} 
 🎯 Цель: {$targets}
-⛔️ Стоп: {$request->stop_loss}
+⛔️ Стоп: {$order->stop_loss}
 
-💰 Сумма: {$request->sum} 
+💰 Сумма: {$order->sum} 
 
 HTML;
 
@@ -82,9 +77,9 @@ HTML;
             $request = $marketApi->prepareOrderRequest($request);
 
 
-            $message = $this->requestToMessage($request);
-
             $order = Order::fromRequest($request, $bot->message->message_id, $marketApi);
+            $message = $this->orderToMessage($order);
+
             $keyboard = $this->getOrderKeyboard($order);
 
             $bot->getClient()->sendMessage($bot->getFromId(), $message, null, false, null, $keyboard);

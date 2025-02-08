@@ -4,7 +4,7 @@ namespace app\helpers;
 
 use app\exceptions\market\ForbiddenOrderException;
 use app\market\order\OrderLongRequest;
-use app\telegram\crypto_signal\determine\OrderDetermine;
+use app\telegram\crypto_signal\determine\SignalDetermine;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -12,7 +12,7 @@ class MarketHelper
 {
     public static function textToMarketRequest($text)
     {
-        $determine = new OrderDetermine();
+        $determine = new SignalDetermine();
         $key = ['gpt', 'determine', md5($text)];
         if (!$response = Yii::$app->cache->get($key)) {
             $response = $determine->process($text);

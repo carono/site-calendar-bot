@@ -4,7 +4,7 @@ namespace app\market\order;
 
 use yii\base\Model;
 
-class OrderRequest extends Model
+class Order extends Model
 {
     public $coin;
     public $sum;

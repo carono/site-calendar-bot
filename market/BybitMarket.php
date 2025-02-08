@@ -5,7 +5,7 @@ namespace app\market;
 use app\clients\bybit\Client;
 use app\helpers\RoundHelper;
 use app\market\order\OrderLongRequest;
-use app\market\order\OrderRequest;
+use app\market\order\Order;
 use app\models\PvMarketSetting;
 use Yii;
 
@@ -54,11 +54,11 @@ class BybitMarket extends Market
      */
 
     /**
-     * @param OrderRequest $request
+     * @param Order $request
      * @return int|void
      * @throws \app\exceptions\ValidationException
      */
-    public function makeOrder(OrderRequest $request)
+    public function makeOrder(Order $request)
     {
         $settings = $this->getApi()->getCoinSetting($request->coin);
         $client = $this->getClient();
@@ -82,9 +82,11 @@ class BybitMarket extends Market
         $side = $request instanceof OrderLongRequest ? 'Buy' : 'Sell';
         $type = 'Limit';
         $response = $client->order('spot', $request->coin, $side, $type, (string)$qt, array_filter($params));
+        Yii::info($response, 'market');
         if (isset($response->result->orderId)) {
             return (int)$response->result->orderId;
         }
+        return false;
     }
 
     public function getPrice($coin, $type = self::TYPE_SPOT, $method = self::METHOD_BUY)
@@ -92,6 +94,7 @@ class BybitMarket extends Market
         $client = $this->getClient();
         $response = $client->getOrderbook($type, $coin);
         $result = $response->result;
+        print_r($response);
         if ($method == self::METHOD_BUY) {
             return $result->a[0][0];
         }

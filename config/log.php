@@ -13,5 +13,12 @@ return [
             'logVars' => [],
             'levels' => ['error', 'warning', 'info'],
         ],
+        [
+            'class' => 'yii\log\FileTarget',
+            'categories' => ['market'],
+            'logFile' => '@app/runtime/logs/market.log',
+            'logVars' => [],
+            'levels' => ['error', 'warning', 'info'],
+        ],
     ],
 ];

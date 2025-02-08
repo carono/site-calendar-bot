@@ -31,6 +31,9 @@ use yii\helpers\ArrayHelper;
  * @property string $status
  * @property integer $log_id
  * @property string $executed_at
+ * @property string $sum
+ * @property string $price_fact
+ * @property string $break_even_percent
  *
  * @property \app\models\Coin $coin
  * @property \app\models\MarketApi $marketApi
@@ -55,7 +58,7 @@ class Order extends ActiveRecord
 		return [
 		[['user_id', 'market_api_id', 'coin_id', 'log_id'], 'default', 'value' => null],
 		      [['user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
-		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max'], 'number'],
+		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max', 'sum', 'price_fact', 'break_even_percent'], 'number'],
 		      [['executed_at'], 'safe'],
 		      [['type', 'side'], 'string', 'max' => 16],
 		      [['external_id'], 'string', 'max' => 64],
@@ -116,7 +119,10 @@ class Order extends ActiveRecord
 		    'external_id' => Yii::t('models', 'External ID'),
 		    'status' => Yii::t('models', 'Status'),
 		    'log_id' => Yii::t('models', 'Log ID'),
-		    'executed_at' => Yii::t('models', 'Executed At')
+		    'executed_at' => Yii::t('models', 'Executed At'),
+		    'sum' => Yii::t('models', 'Sum'),
+		    'price_fact' => Yii::t('models', 'Price Fact'),
+		    'break_even_percent' => Yii::t('models', 'Break Even Percent')
 		];
 	}
 

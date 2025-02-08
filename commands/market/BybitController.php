@@ -4,6 +4,7 @@ namespace app\commands\market;
 
 use app\clients\bybit\Client;
 use app\exceptions\ValidationException;
+use app\market\BybitMarket;
 use app\models\Coin;
 use app\models\Market;
 use app\models\MarketApi;
@@ -60,5 +61,15 @@ class BybitController extends Controller
         $client->secret = Yii::$app->params['market']['bybit']['secret'];
         $response = $client->getOrderInfo('spot', ['orderId' => $id]);
         print_r($response);
+    }
+
+    public function actionPrice($coin)
+    {
+        $api = MarketApi::find()->andWhere(['user_id' => 1])->one();
+        $client = new BybitMarket();
+        $client->setApi($api);
+
+        $x = $client->getPrice($coin, \app\market\Market::TYPE_SPOT);
+        var_dump($x);
     }
 }

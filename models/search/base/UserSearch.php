@@ -16,7 +16,8 @@ class UserSearch extends \app\models\User implements \app\interfaces\Search
 	public function rules()
 	{
 		return [[['id', 'chat_id', 'daily_task_avg_count'], 'integer'],
-		[['chat_name', 'phone', 'created_at', 'updated_at'], 'safe']];
+		[['chat_name', 'phone', 'created_at', 'updated_at'], 'safe'],
+		[['default_stop_loss_percent', 'default_break_even_percent'], 'number']];
 	}
 
 
