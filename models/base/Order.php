@@ -34,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property string $sum
  * @property string $price_fact
  * @property string $break_even_percent
+ * @property string $last_updated_price
  * @property string $created_at
  *
  * @property \app\models\Coin $coin
@@ -72,16 +73,15 @@ class Order extends ActiveRecord
 		return [
 		[['user_id', 'market_api_id', 'coin_id', 'log_id'], 'default', 'value' => null],
 		      [['user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
-		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max', 'sum', 'price_fact', 'break_even_percent'], 'number'],
+		      [['type', 'side', 'external_id'], 'string'],
+		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max', 'sum', 'price_fact', 'break_even_percent', 'last_updated_price'], 'number'],
 		      [['executed_at'], 'safe'],
-		      [['type', 'side'], 'string', 'max' => 16],
-		      [['external_id'], 'string', 'max' => 64],
 		      [['status'], 'string', 'max' => 255],
 		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']],
 		      [['market_api_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\MarketApi::class, 'targetAttribute' => ['market_api_id' => 'id']],
 		      [['log_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\TelegramLog::class, 'targetAttribute' => ['log_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
-		      [['status'], 'trim']
+		      [['type', 'side', 'external_id', 'status'], 'trim']
 		];
 	}
 
@@ -137,7 +137,8 @@ class Order extends ActiveRecord
 		    'sum' => Yii::t('models', 'Sum'),
 		    'price_fact' => Yii::t('models', 'Price Fact'),
 		    'break_even_percent' => Yii::t('models', 'Break Even Percent'),
-		    'created_at' => Yii::t('models', 'Created At')
+		    'created_at' => Yii::t('models', 'Created At'),
+		    'last_updated_price' => Yii::t('models', 'Last Updated Price')
 		];
 	}
 

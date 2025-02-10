@@ -35,7 +35,7 @@ abstract class Market
 
     abstract public function makeOrder(OrderLongRequest $request);
 
-    abstract public function getPrice($coin, $type = self::TYPE_SPOT, $method = self::METHOD_BUY);
+    abstract public function getPrice(string $coin, string $type = self::TYPE_SPOT, string $method = self::METHOD_BUY);
 
     abstract public function getSettings($coin, $type = self::TYPE_SPOT);
 

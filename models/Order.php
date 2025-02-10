@@ -8,6 +8,7 @@ namespace app\models;
 
 use app\exceptions\ValidationException;
 use app\market\order\OrderLongRequest;
+use app\market\order\OrderRequest;
 use Exception;
 use yii\db\Expression;
 
@@ -16,24 +17,23 @@ use yii\db\Expression;
  */
 class Order extends base\Order
 {
-    public static function fromRequest(\app\market\order\Order $request, $message_id, MarketApi $marketApi)
+    public static function fromRequest(OrderRequest $request, $message_id, MarketApi $marketApi)
     {
         $model = new static();
         $model->user_id = $marketApi->user_id;
         $model->market_api_id = $marketApi->market_id;
         $model->coin_id = Coin::findOrCreateByCode($request->coin)->id;
-        $model->type = 'spot';
-        $model->side = $request instanceof OrderLongRequest ? 'buy' : 'sell';
-        $model->stop_loss = $request->stop_loss;
-        $model->take_profit1 = $request->take_profit1;
-        $model->take_profit2 = $request->take_profit2;
-        $model->take_profit3 = $request->take_profit3;
-        $model->take_profit4 = $request->take_profit4;
-        $model->price = $request->price;
+        $model->type = \app\market\Market::TYPE_SPOT;
+        $model->price = $marketApi->getCoinPrice($request->coin, trim($model->type));
+        $model->side = $request instanceof OrderLongRequest ? \app\market\Market::METHOD_BUY : \app\market\Market::METHOD_SELL;
+        $model->stop_loss = $marketApi->getStopLoss($model->price, $model->side);
+        $model->break_even_percent = $marketApi->getBreakEvenPercent();
+        $model->take_profit1 = $marketApi->getProfitStep($model->price, $model->side);
         $model->price_max = $request->price_max;
         $model->price_min = $request->price_min;
+        $model->sum = $marketApi->getSum();
         $model->log_id = TelegramLog::find()->andWhere(['update_id' => $message_id])->select(['id'])->scalar();
-//        $model->external_id =
+        $model->created_at = new Expression('NOW()');
         if (!$model->save()) {
             throw new ValidationException($model);
         }
@@ -45,11 +45,12 @@ class Order extends base\Order
         try {
             $request = new OrderLongRequest();
             $request->take_profit1 = $this->take_profit1;
+            $request->price = $this->marketApi->getCoinPrice($this->coin->code, trim($this->type));
             $request->coin = $this->coin->code;
             $request->sum = $this->sum;
             $request->stop_loss = $this->stop_loss;
             if (!$externalId = $this->marketApi->order($request)) {
-                throw new Exception('Fail send order');
+                throw new Exception(current($this->marketApi->getFirstErrors()));
             }
             $this->updateAttributes([
                 'executed_at' => new Expression('NOW()'),
@@ -57,6 +58,7 @@ class Order extends base\Order
             ]);
             return true;
         } catch (Exception $e) {
+            $this->addError('coin', $e->getMessage());
             return false;
         }
     }

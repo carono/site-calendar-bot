@@ -4,9 +4,11 @@ namespace app\commands;
 
 use app\clients\bybit\Client;
 use app\components\Bot;
+use app\helpers\MarketHelper;
 use app\telegram\crypto_signal\determine\SignalDetermine;
 use Yii;
 use yii\console\Controller;
+use yii\helpers\Console;
 
 class TestController extends Controller
 {
@@ -24,8 +26,7 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-        Yii::error('test', 'telegram');
-
-
+        $x = MarketHelper::getRangePercent(20, 25);
+        Console::output(Yii::$app->formatter->asPercent($x));
     }
 }

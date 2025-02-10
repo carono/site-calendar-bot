@@ -15,11 +15,10 @@ class DefaultButtons extends \carono\telegram\abs\Button
             return;
         }
 
-
         if ($order->execute()) {
             $bot->sayPrivate('Ордер успешно размещен');
         } else {
-            $bot->sayPrivate('Не смогли оформить ордер');
+            $bot->sayPrivate('Не смогли оформить ордер: ' . current($order->getFirstErrors()));
         }
     }
 }

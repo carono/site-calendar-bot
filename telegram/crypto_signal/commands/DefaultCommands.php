@@ -38,18 +38,18 @@ class DefaultCommands extends \carono\telegram\abs\Command
     protected function orderToMessage(Order $order)
     {
         $type = $order->side == 'buy' ? '🟢 LONG' : '🔴 SHORT';
-//        $targets = implode('; ', array_filter([$order->take_profit1, $order->take_profit2, $order->take_profit3, $order->take_profit4]));
-        $targets = '';
+        $stopPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->stop_loss));
+        $targetPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->take_profit1));
         $message = <<<HTML
 $type 
  
-🪙 Токен: {$order->coin}
+🪙 Токен: {$order->coin->code}
 💰 Текущая цена: {$order->price}
 💰 Вход: {$order->price_min} - {$order->price_max} 
-🎯 Цель: {$targets}
-⛔️ Стоп: {$order->stop_loss}
+🎯 Цель: {$order->take_profit1} ($targetPercent)
+⛔️ Стоп: {$order->stop_loss} ($stopPercent)
 
-💰 Сумма: {$order->sum} 
+💰 Сумма: {$order->sum} USDT 
 
 HTML;
 
@@ -68,21 +68,21 @@ HTML;
             return;
         }
 
-
+        //
         $bot->sayPrivate(json_encode($request->attributes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        //
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $marketApi = MarketApi::find()->andWhere(['user_id' => 1, 'market_id' => 1])->one();
-            $request = $marketApi->prepareOrderRequest($request);
+//            $request = $marketApi->prepareOrderRequest($request);
 
 
             $order = Order::fromRequest($request, $bot->message->message_id, $marketApi);
-
             $message = $this->orderToMessage($order);
-
             $keyboard = $this->getOrderKeyboard($order);
-
             $bot->getClient()->sendMessage($bot->getFromId(), $message, null, false, null, $keyboard);
+
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();

@@ -4,9 +4,12 @@ namespace app\commands;
 
 use app\helpers\MarketHelper;
 use app\models\MarketApi;
+use app\models\Order;
 use app\telegram\crypto_signal\determine\SignalDetermine;
+use Exception;
 use Yii;
 use yii\console\Controller;
+use yii\helpers\Console;
 
 class MarketController extends Controller
 {
@@ -57,5 +60,27 @@ HTML;
 
 
 //        $marketApi->order($request);
+    }
+
+
+    public function actionCheck()
+    {
+        /**
+         * @var Order $order
+         */
+        foreach (Order::find()->andWhere(['not', ['executed_at' => null]])->andWhere(['not', ['external_id' => null]])->each() as $order) {
+            $api = $order->marketApi;
+            try {
+                $info = $api->getOrderInfo(trim($order->external_id));
+                $price = $api->getCoinPrice($order->coin->code, $order->type);
+                $order->updateAttributes([
+                    'status' => $info->status,
+                    'last_updated_price' => $price,
+                    'price_fact' => $info->price
+                ]);
+            } catch (Exception $e) {
+                Console::output('Order ' . $order->external_id . ': ' . $e->getMessage());
+            }
+        }
     }
 }

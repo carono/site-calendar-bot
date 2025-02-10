@@ -16,7 +16,7 @@ class MarketHelper
         $key = ['gpt', 'determine', md5($text)];
         if (!$response = Yii::$app->cache->get($key)) {
             $response = $determine->process($text);
-            Yii::$app->cache->set($key, $response, 360);
+//            Yii::$app->cache->set($key, $response, 360);
         }
         if ($response['type'] == "LONG") {
             $request = new OrderLongRequest();
@@ -51,5 +51,23 @@ class MarketHelper
         }
 
         return $request;
+    }
+
+    public static function addPercent($price, $percent)
+    {
+        $sub = $price * $percent;
+        return $price + $sub;
+    }
+
+    public static function subPercent($price, $percent)
+    {
+        $sub = $price * $percent;
+        return $price - $sub;
+    }
+
+    public static function getRangePercent($int1, $int2)
+    {
+        $diff = $int2 - $int1;
+        return RoundHelper::stripPrecision($diff / $int1, 4);
     }
 }

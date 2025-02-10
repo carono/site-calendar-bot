@@ -6,10 +6,11 @@
 
 namespace app\models;
 
+use app\exceptions\ValidationException;
+use app\helpers\MarketHelper;
 use app\helpers\RoundHelper;
-use app\market\order\OrderLimitRequest;
-use app\market\order\OrderLongRequest;
-use app\market\order\Order;
+use app\market\InfoDTO;
+use app\market\order\OrderRequest;
 
 /**
  * This is the model class for table "market_api".
@@ -31,6 +32,10 @@ class MarketApi extends base\MarketApi
         return $result;
     }
 
+    /**
+     * @param $external_id
+     * @return InfoDTO
+     */
     public function getOrderInfo($external_id)
     {
         $client = new $this->market->class_name;
@@ -38,45 +43,45 @@ class MarketApi extends base\MarketApi
         return $client->getOrderInfo($external_id);
     }
 
-    protected function setDefaultStopLoss(Order $request)
+    public function getBreakEvenPercent()
     {
-        if ($request instanceof OrderLimitRequest) {
-            $stopLossLevel = $request->price * 0.03;
-            if ($request instanceof OrderLongRequest) {
-                $request->stop_loss = $request->price - $stopLossLevel;
-            } else {
-                $request->stop_loss = $request->price + $stopLossLevel;
-            }
-        }
+        return $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: 0.03);
     }
 
-    public function prepareOrderRequest(Order $request)
+    public function getCoinPrice($coin, $type)
+    {
+        $client = new $this->market->class_name;
+        $client->setApi($this);
+        return $client->getPrice($coin, $type);
+    }
+
+
+    public function roundRequestPrices(OrderRequest $request)
     {
         /**
          * @var \app\market\Market $client
          */
-        $client = new $this->market->class_name;
-        $client->setApi($this);
 
-        if ($request instanceof OrderLimitRequest) {
-            if (!$request->price) {
-                $request->price = $client->getPrice($request->coin, \app\market\Market::TYPE_SPOT);
-            }
-        }
 
-        $request->price = $request->price ? $this->roundPrice($request->price, $request->coin) : $request->price;
+//        if ($request instanceof OrderLimitRequest) {
+//            if (!$request->price) {
+//                $request->price = $client->getPrice($request->coin, \app\market\Market::TYPE_SPOT);
+//            }
+//        }
 
-        $request->take_profit1 = $request->take_profit1 ? $this->roundPrice($request->take_profit1, $request->coin) : $request->take_profit1;
-        $request->take_profit2 = $request->take_profit2 ? $this->roundPrice($request->take_profit2, $request->coin) : $request->take_profit2;
-        $request->take_profit3 = $request->take_profit3 ? $this->roundPrice($request->take_profit3, $request->coin) : $request->take_profit3;
-        $request->take_profit4 = $request->take_profit4 ? $this->roundPrice($request->take_profit4, $request->coin) : $request->take_profit4;
+//        $request->price = $request->price ? $this->roundPrice($request->price, $request->coin) : $request->price;
 
-        $request->price_max = $request->price_max ? $this->roundPrice($request->price_max, $request->coin) : $request->price_max;
-        $request->price_min = $request->price_min ? $this->roundPrice($request->price_min, $request->coin) : $request->price_min;
+//        $request->take_profit1 = $request->take_profit1 ? $this->roundPrice($request->take_profit1, $request->coin) : $request->take_profit1;
+//        $request->take_profit2 = $request->take_profit2 ? $this->roundPrice($request->take_profit2, $request->coin) : $request->take_profit2;
+//        $request->take_profit3 = $request->take_profit3 ? $this->roundPrice($request->take_profit3, $request->coin) : $request->take_profit3;
+//        $request->take_profit4 = $request->take_profit4 ? $this->roundPrice($request->take_profit4, $request->coin) : $request->take_profit4;
+//
+//        $request->price_max = $request->price_max ? $this->roundPrice($request->price_max, $request->coin) : $request->price_max;
+//        $request->price_min = $request->price_min ? $this->roundPrice($request->price_min, $request->coin) : $request->price_min;
 
-        if (is_null($request->stop_loss)) {
-            $this->setDefaultStopLoss($request);
-        }
+//        if (is_null($request->stop_loss)) {
+//            $this->setDefaultStopLoss($request);
+//        }
 
 
 //        if (is_null($request->stop_loss)) {
@@ -98,15 +103,17 @@ class MarketApi extends base\MarketApi
         return $request;
     }
 
-    public function order(Order $request)
+    public function order(OrderRequest $request)
     {
         /**
          * @var \app\market\Market $client
          */
         $client = new $this->market->class_name;
         $client->setApi($this);
-        $request = $this->prepareOrderRequest($request);
-        $result = $client->makeOrder($request);
+        if (!$result = $client->makeOrder($request)) {
+            $this->addError('id', current($request->getFirstErrors()));
+        }
+
         unset($client);
         return $result;
     }
@@ -147,5 +154,22 @@ class MarketApi extends base\MarketApi
         $settings = $this->getCoinSetting($symbol);
         $base = RoundHelper::getPrecisionBase($settings->order_precision);
         return RoundHelper::stripPrecision($price, $base);
+    }
+
+    public function getStopLoss($price, $side, $default = 0.03)
+    {
+        $percent = $this->default_stop_loss_percent ?: ($this->user->default_stop_loss_percent ?: $default);
+        return $side == 'buy' ? MarketHelper::subPercent($price, $percent) : MarketHelper::addPercent($price, $percent);
+    }
+
+    public function getSum()
+    {
+        return 5;
+    }
+
+    public function getProfitStep($price, $side, $default = 0.03)
+    {
+        $percent = $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: $default);
+        return $side == 'buy' ? MarketHelper::addPercent($price, $percent) : MarketHelper::subPercent($price, $percent);
     }
 }

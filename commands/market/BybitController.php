@@ -15,18 +15,18 @@ use yii\db\Expression;
 
 class BybitController extends Controller
 {
-    public function actionFillCoins()
+    public function actionFillCoins($coin = null)
     {
         $client = new Client();
         $client->token = Yii::$app->params['market']['bybit']['token'];
         $client->secret = Yii::$app->params['market']['bybit']['secret'];
         $market = Market::find()->andWhere(['name' => 'Bybit'])->one();
-        $response = $client->instrumentsInfo('spot');
+        $response = $client->instrumentsInfo('spot', $coin);
         foreach ($response->result->list as $item) {
             $coinModel = Coin::findOrCreateByCode($item->symbol);
             $attributes = [
                 'base_precision' => $item->lotSizeFilter->basePrecision,
-                'order_precision' => $item->lotSizeFilter->quotePrecision,
+                'order_precision' => $item->priceFilter->tickSize,
                 'min_quantity' => $item->lotSizeFilter->minOrderQty,
                 'min_amount' => $item->lotSizeFilter->minOrderAmt,
             ];
@@ -71,5 +71,15 @@ class BybitController extends Controller
 
         $x = $client->getPrice($coin, \app\market\Market::TYPE_SPOT);
         var_dump($x);
+    }
+
+    public function actionCoin($coin)
+    {
+        $api = MarketApi::find()->andWhere(['user_id' => 1])->one();
+        $client = new BybitMarket();
+        $client->setApi($api);
+
+        $result = $client->getSettings($coin);
+        print_r($result);
     }
 }
