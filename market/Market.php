@@ -40,4 +40,6 @@ abstract class Market
     abstract public function getSettings($coin, $type = self::TYPE_SPOT);
 
     abstract public function getOrderInfo($external_id);
+
+    abstract public function getOpenOrders();
 }

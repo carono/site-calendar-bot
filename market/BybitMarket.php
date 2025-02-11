@@ -113,9 +113,32 @@ class BybitMarket extends Market
 //        file_put_contents('2.json', json_encode($response));
 //        var_dump(1);
 //        exit;
-        $result = new InfoDTO();
+        $result = new OrderInfoDTO();
         $result->status = $response->result->list[0]->orderStatus;
         $result->price = $response->result->list[0]->price;
+        return $result;
+    }
+
+    protected function orderInfoToDTO($data)
+    {
+        $item = new OrderInfoDTO();
+        $item->id = $data->orderId;
+        $item->status = $data->orderStatus;
+        $item->price = $data->basePrice;
+        $item->takeProfit = $data->takeProfit;
+        $item->stopLoss = $data->stopLoss;
+        $item->qty = $data->qty;
+        $item->symbol = $data->symbol;
+        $item->basePrice = $data->basePrice;
+        return $item;
+    }
+
+    public function getOpenOrders()
+    {
+        $result = [];
+        foreach ($this->getClient()->getOrderInfo('spot')->result->list as $order) {
+            $result[] = $this->orderInfoToDTO($order);
+        }
         return $result;
     }
 }

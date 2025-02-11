@@ -22,8 +22,8 @@ class Client extends \carono\rest\Client
                 'X-BAPI-API-KEY' => $this->token,
                 'X-BAPI-RECV-WINDOW' => 5000,
             ],
-            'proxy' => '192.168.1.254:8888',
-            'verify' => false
+//            'proxy' => '192.168.1.254:8888',
+//            'verify' => false
         ];
     }
 
@@ -92,7 +92,14 @@ class Client extends \carono\rest\Client
         $data = array_merge([
             'category' => $category
         ], $params);
-//        return $this->getContent('order/history', $data);
         return $this->getContent('order/realtime', $data);
+    }
+
+    public function getOrderHistory($category, $params = [])
+    {
+        $data = array_merge([
+            'category' => $category
+        ], $params);
+        return $this->getContent('order/history', $data);
     }
 }

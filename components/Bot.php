@@ -4,6 +4,8 @@
 namespace app\components;
 
 
+use app\helpers\MarketHelper;
+use app\models\Order;
 use app\telegram\ChatJoinRequest;
 use carono\telegram\abs\Command;
 use carono\telegram\helpers\StringHelper;
@@ -21,10 +23,50 @@ class Bot extends \carono\telegram\Bot
         $model->handle($this);
     }
 
+
+    protected function getOrderKeyboard(Order $order)
+    {
+        $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup(
+            [
+                [
+                    ['text' => 'Оформить', 'callback_data' => 'DefaultButtons/approve?order_id=' . $order->id]
+                ]
+            ]
+        );
+        return $keyboard;
+    }
+
+    protected function orderToMessage(Order $order)
+    {
+        $type = $order->side == 'buy' ? '🟢 LONG' : '🔴 SHORT';
+        $stopPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->stop_loss));
+        $targetPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->take_profit1));
+        $message = <<<HTML
+$type 
+ 
+🪙 Токен: {$order->coin->code}
+💰 Текущая цена: {$order->price}
+💰 Вход: {$order->price_min} - {$order->price_max} 
+🎯 Цель: {$order->take_profit1} ($targetPercent)
+⛔️ Стоп: {$order->stop_loss} ($stopPercent)
+
+💰 Сумма: {$order->sum} USDT 
+
+HTML;
+
+        return $message;
+    }
+
+    public function sendOrder($chat_id, \app\models\Order $order)
+    {
+        $message = $this->orderToMessage($order);
+        $keyboard = $this->getOrderKeyboard($order);
+        $this->getClient()->sendMessage($chat_id, $message, null, false, null, $keyboard);
+    }
+
     protected function beforeRun()
     {
         $text = $this->message->text ?? '';
-        file_put_contents('1.json', json_encode($this->message, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         Yii::$app->db
             ->createCommand()
             ->insert('{{%telegram_log}}', [

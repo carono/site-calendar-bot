@@ -65,9 +65,13 @@ class MarketHelper
         return $price - $sub;
     }
 
-    public static function getRangePercent($int1, $int2)
+    public static function getRangePercent($int1, $int2, $format = false)
     {
         $diff = $int2 - $int1;
-        return RoundHelper::stripPrecision($diff / $int1, 4);
+        if ($int1 == 0) {
+            return '0';
+        }
+        $result = RoundHelper::stripPrecision($diff / $int1, 4);
+        return $format ? Yii::$app->formatter->asPercent($result, 3) : $result;
     }
 }

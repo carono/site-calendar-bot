@@ -26,7 +26,7 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-        $x = MarketHelper::getRangePercent(20, 25);
-        Console::output(Yii::$app->formatter->asPercent($x));
+        $x = MarketHelper::getRangePercent('0.6519', '0.682');
+        Console::output(Yii::$app->formatter->asPercent($x, 2));
     }
 }

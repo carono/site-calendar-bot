@@ -3,6 +3,9 @@
 namespace app\controllers;
 
 use app\components\Bot;
+use app\helpers\MarketHelper;
+use app\models\MarketApi;
+use app\models\Order;
 use app\models\TelegramBot;
 use Exception;
 use Yii;
@@ -49,5 +52,28 @@ class CallbackController extends Controller
         }
 
         return '';
+    }
+
+    public function actionSignal()
+    {
+        $model = TelegramBot::findOne(1);
+        $bot = $model->getBot();
+        foreach (MarketApi::find()->notDeleted()->each() as $marketApi) {
+            $message = Yii::$app->request->post('text');
+            $request = MarketHelper::textToMarketRequest($message);
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+
+                $order = Order::fromRequest($request, null, $marketApi);
+                $bot->sendOrder($bot->getFromId(), $order);
+
+
+
+                $transaction->commit();
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                $bot->sayPrivate('Не удалось сформировать ордер: ' . $e->getMessage());
+            }
+        }
     }
 }

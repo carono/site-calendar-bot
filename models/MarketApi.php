@@ -9,7 +9,7 @@ namespace app\models;
 use app\exceptions\ValidationException;
 use app\helpers\MarketHelper;
 use app\helpers\RoundHelper;
-use app\market\InfoDTO;
+use app\market\OrderInfoDTO;
 use app\market\order\OrderRequest;
 
 /**
@@ -34,13 +34,20 @@ class MarketApi extends base\MarketApi
 
     /**
      * @param $external_id
-     * @return InfoDTO
+     * @return OrderInfoDTO
      */
     public function getOrderInfo($external_id)
     {
         $client = new $this->market->class_name;
         $client->setApi($this);
         return $client->getOrderInfo($external_id);
+    }
+
+    public function getOpenOrders()
+    {
+        $client = new $this->market->class_name;
+        $client->setApi($this);
+        return $client->getOpenOrders();
     }
 
     public function getBreakEvenPercent()

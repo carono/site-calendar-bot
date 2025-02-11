@@ -32,7 +32,7 @@ class Order extends base\Order
         $model->price_max = $request->price_max;
         $model->price_min = $request->price_min;
         $model->sum = $marketApi->getSum();
-        $model->log_id = TelegramLog::find()->andWhere(['update_id' => $message_id])->select(['id'])->scalar();
+        $model->log_id = TelegramLog::find()->andWhere(['update_id' => $message_id])->select(['id'])->scalar() ?: null;
         $model->created_at = new Expression('NOW()');
         if (!$model->save()) {
             throw new ValidationException($model);
