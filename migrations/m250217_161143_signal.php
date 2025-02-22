@@ -8,11 +8,11 @@ class m250217_161143_signal extends Migration
     public function newTables()
     {
         return [
-            'signal_source' => [
+            '{{%signal_source}}' => [
                 'id' => $this->primaryKey(),
                 'name' => $this->string()
             ],
-            'signal' => [
+            '{{%signal}}' => [
                 'id' => $this->primaryKey(),
                 'source_id' => $this->foreignKey('{{%signal_source}}'),
                 'raw' => $this->text(),

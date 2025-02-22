@@ -16,7 +16,7 @@ class SignalSearch extends \app\models\Signal implements \app\interfaces\Search
 	public function rules()
 	{
 		return [[['id', 'source_id', 'coin_id'], 'integer'],
-		[['raw', 'price_max_at', 'price_min_at', 'price_check_at', 'created_at'], 'safe'],
+		[['raw', 'price_max_at', 'price_min_at', 'price_check_at', 'finished_at', 'created_at'], 'safe'],
 		[['price_on', 'take_profit', 'stop_loss', 'buy_min', 'buy_max', 'price_max', 'price_min'], 'number']];
 	}
 

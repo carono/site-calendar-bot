@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property string $price_max_at
  * @property string $price_min_at
  * @property string $price_check_at
+ * @property string $finished_at
  * @property string $created_at
  *
  * @property \app\models\Coin $coin
@@ -60,7 +61,7 @@ class Signal extends ActiveRecord
 		      [['source_id', 'coin_id'], 'integer'],
 		      [['raw'], 'string'],
 		      [['price_on', 'take_profit', 'stop_loss', 'buy_min', 'buy_max', 'price_max', 'price_min'], 'number'],
-		      [['price_max_at', 'price_min_at', 'price_check_at'], 'safe'],
+		      [['price_max_at', 'price_min_at', 'price_check_at', 'finished_at'], 'safe'],
 		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']],
 		      [['source_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\SignalSource::class, 'targetAttribute' => ['source_id' => 'id']],
 		      [['raw'], 'trim']
@@ -112,7 +113,8 @@ class Signal extends ActiveRecord
 		    'price_max_at' => Yii::t('models', 'Price Max At'),
 		    'price_min_at' => Yii::t('models', 'Price Min At'),
 		    'price_check_at' => Yii::t('models', 'Price Check At'),
-		    'created_at' => Yii::t('models', 'Created At')
+		    'created_at' => Yii::t('models', 'Created At'),
+		    'finished_at' => Yii::t('models', 'Finished At')
 		];
 	}
 
