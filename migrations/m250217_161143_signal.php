@@ -14,7 +14,7 @@ class m250217_161143_signal extends Migration
             ],
             'signal' => [
                 'id' => $this->primaryKey(),
-                'source_id' => $this->primaryKey(),
+                'source_id' => $this->foreignKey('{{%signal_source}}'),
                 'raw' => $this->text(),
                 'coin_id' => $this->foreignKey('{{%coin}}'),
                 'price_on' => $this->decimal(30, 20),

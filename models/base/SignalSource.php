@@ -15,6 +15,8 @@ use yii\helpers\ArrayHelper;
  *
  * @property integer $id
  * @property string $name
+ *
+ * @property \app\models\Signal[] $signals
  */
 class SignalSource extends ActiveRecord
 {
@@ -76,6 +78,15 @@ class SignalSource extends ActiveRecord
 	public static function find()
 	{
 		return new \app\models\query\SignalSourceQuery(get_called_class());
+	}
+
+
+	/**
+	 * @return \app\models\query\SignalQuery|\yii\db\ActiveQuery
+	 */
+	public function getSignals()
+	{
+		return $this->hasMany(\app\models\Signal::className(), ['source_id' => 'id']);
 	}
 
 

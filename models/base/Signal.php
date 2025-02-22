@@ -15,25 +15,26 @@ use yii\helpers\ArrayHelper;
  *
  * @property integer $id
  * @property integer $source_id
- * @property integer $raw
+ * @property string $raw
  * @property integer $coin_id
- * @property integer $price_on
- * @property integer $take_profit
- * @property integer $stop_loss
- * @property integer $buy_min
- * @property integer $buy_max
- * @property integer $price_max
- * @property integer $price_min
- * @property integer $price_max_at
- * @property integer $price_min_at
- * @property integer $price_check_at
- * @property integer $created_at
+ * @property string $price_on
+ * @property string $take_profit
+ * @property string $stop_loss
+ * @property string $buy_min
+ * @property string $buy_max
+ * @property string $price_max
+ * @property string $price_min
+ * @property string $price_max_at
+ * @property string $price_min_at
+ * @property string $price_check_at
+ * @property string $created_at
  *
  * @property \app\models\Coin $coin
+ * @property \app\models\SignalSource $source
  */
 class Signal extends ActiveRecord
 {
-	protected $_relationClasses = ['coin_id' => 'app\models\Coin'];
+	protected $_relationClasses = ['coin_id' => 'app\models\Coin', 'source_id' => 'app\models\SignalSource'];
 
 
 	public function behaviors()
@@ -41,7 +42,7 @@ class Signal extends ActiveRecord
 		return [
 		    'timestamp' => [
 		        'class' => 'yii\behaviors\TimestampBehavior',
-
+		        'value' => new \yii\db\Expression('NOW()'),
 		        'createdAtAttribute' => 'created_at',
 		        'updatedAtAttribute' => null
 		    ]
@@ -55,11 +56,14 @@ class Signal extends ActiveRecord
 	public function rules()
 	{
 		return [
-		[['id', 'source_id'], 'required'],
-		      [['id', 'source_id', 'raw', 'coin_id', 'price_on', 'take_profit', 'stop_loss', 'buy_min', 'buy_max', 'price_max', 'price_min', 'price_max_at', 'price_min_at', 'price_check_at'], 'default', 'value' => null],
-		      [['id', 'source_id', 'raw', 'coin_id', 'price_on', 'take_profit', 'stop_loss', 'buy_min', 'buy_max', 'price_max', 'price_min', 'price_max_at', 'price_min_at', 'price_check_at'], 'integer'],
-		      [['id', 'source_id'], 'unique', 'targetAttribute' => ['id', 'source_id']],
-		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']]
+		[['source_id', 'coin_id'], 'default', 'value' => null],
+		      [['source_id', 'coin_id'], 'integer'],
+		      [['raw'], 'string'],
+		      [['price_on', 'take_profit', 'stop_loss', 'buy_min', 'buy_max', 'price_max', 'price_min'], 'number'],
+		      [['price_max_at', 'price_min_at', 'price_check_at'], 'safe'],
+		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']],
+		      [['source_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\SignalSource::class, 'targetAttribute' => ['source_id' => 'id']],
+		      [['raw'], 'trim']
 		];
 	}
 
@@ -129,6 +133,15 @@ class Signal extends ActiveRecord
 	public function getCoin()
 	{
 		return $this->hasOne(\app\models\Coin::className(), ['id' => 'coin_id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\SignalSourceQuery|\yii\db\ActiveQuery
+	 */
+	public function getSource()
+	{
+		return $this->hasOne(\app\models\SignalSource::className(), ['id' => 'source_id']);
 	}
 
 

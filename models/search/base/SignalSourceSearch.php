@@ -15,7 +15,8 @@ class SignalSourceSearch extends \app\models\SignalSource implements \app\interf
 {
 	public function rules()
 	{
-		return [];
+		return [[['id'], 'integer'],
+		[['name'], 'safe']];
 	}
 
 

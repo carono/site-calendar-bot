@@ -85,6 +85,7 @@ class CallbackController extends Controller
         $signal->buy_max = $request->price_min;
         $signal->price_on = $bybitMarket->getPrice($request->coin);
         $signal->created_at = new Expression('NOW()');
+
         if (!$signal->save()) {
             throw new ValidationException($signal);
         }
