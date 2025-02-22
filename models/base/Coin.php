@@ -20,6 +20,7 @@ use yii\helpers\ArrayHelper;
  * @property \app\models\Order[] $orders
  * @property \app\models\PvMarketSetting[] $pvMarketSettings
  * @property \app\models\Market[] $markets
+ * @property \app\models\Signal[] $signals
  * @property \app\models\UserWallet[] $userWallets
  */
 class Coin extends ActiveRecord
@@ -112,6 +113,15 @@ class Coin extends ActiveRecord
 	public function getMarkets()
 	{
 		return $this->hasMany(\app\models\Market::className(), ['id' => 'market_id'])->viaTable('{{%pv_market_settings}}', ['coin_id' => 'id']);
+	}
+
+
+	/**
+	 * @return \app\models\query\SignalQuery|\yii\db\ActiveQuery
+	 */
+	public function getSignals()
+	{
+		return $this->hasMany(\app\models\Signal::className(), ['coin_id' => 'id']);
 	}
 
 

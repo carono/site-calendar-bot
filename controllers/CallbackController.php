@@ -2,13 +2,20 @@
 
 namespace app\controllers;
 
+use app\clients\bybit\Client;
 use app\components\Bot;
+use app\exceptions\ValidationException;
 use app\helpers\MarketHelper;
+use app\market\BybitMarket;
+use app\models\Coin;
 use app\models\MarketApi;
 use app\models\Order;
+use app\models\Signal;
+use app\models\SignalSource;
 use app\models\TelegramBot;
 use Exception;
 use Yii;
+use yii\db\Expression;
 use yii\web\Controller;
 
 class CallbackController extends Controller
@@ -56,18 +63,37 @@ class CallbackController extends Controller
 
     public function actionSignal()
     {
+        $bybitMarket = new BybitMarket();
+        $bybitMarket->token = Yii::$app->params['market']['bybit']['token'];
+        $bybitMarket->secret = Yii::$app->params['market']['bybit']['secret'];
+
         $model = TelegramBot::findOne(1);
         $bot = $model->getBot();
+        $signalSource = SignalSource::findOne(1);
+        $message = Yii::$app->request->post('message');
+
+        $request = MarketHelper::textToMarketRequest($message);
+
+
+        $signal = new Signal();
+        $signal->source_id = $signalSource->id;
+        $signal->raw = $message;
+        $signal->coin_id = Coin::findOrCreateByCode($request->coin)->id;
+        $signal->take_profit = $request->take_profit1;
+        $signal->stop_loss = $request->stop_loss;
+        $signal->buy_min = $request->price_min;
+        $signal->buy_max = $request->price_min;
+        $signal->price_on = $bybitMarket->getPrice($request->coin);
+        $signal->created_at = new Expression('NOW()');
+        if (!$signal->save()) {
+            throw new ValidationException($signal);
+        }
         foreach (MarketApi::find()->notDeleted()->each() as $marketApi) {
-            $message = Yii::$app->request->post('text');
-            $request = MarketHelper::textToMarketRequest($message);
+
             $transaction = Yii::$app->db->beginTransaction();
             try {
-
                 $order = Order::fromRequest($request, null, $marketApi);
-                $bot->sendOrder($bot->getFromId(), $order);
-
-
+                $bot->sendOrder($marketApi->user->chat_id, $order);
 
                 $transaction->commit();
             } catch (Exception $e) {

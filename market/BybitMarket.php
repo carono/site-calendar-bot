@@ -12,11 +12,14 @@ use Yii;
 
 class BybitMarket extends Market
 {
+    public $token;
+    public $secret;
+
     protected function getClient()
     {
         $client = new Client();
-        $client->token = $this->getApi()->token;
-        $client->secret = $this->getApi()->secret;
+        $client->token = $this->token ?: $this->getApi()->token;
+        $client->secret = $this->secret ?: $this->getApi()->secret;
         return $client;
     }
 
