@@ -147,6 +147,6 @@ class BybitMarket extends Market
 
     public function cancelOrderById($external_id)
     {
-        $this->getClient()->cancel($external_id);
+        return $this->getClient()->cancel($external_id);
     }
 }

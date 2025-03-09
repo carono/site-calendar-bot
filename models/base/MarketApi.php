@@ -21,6 +21,8 @@ use yii\helpers\ArrayHelper;
  * @property string $deleted_at
  * @property string $default_stop_loss_percent
  * @property string $default_break_even_percent
+ * @property string $profit_percent_on_break_even
+ * @property string $stop_loss_percent_on_break_even
  * @property string $created_at
  * @property string $updated_at
  *
@@ -55,7 +57,7 @@ class MarketApi extends ActiveRecord
 		[['user_id', 'market_id'], 'default', 'value' => null],
 		      [['user_id', 'market_id'], 'integer'],
 		      [['deleted_at'], 'safe'],
-		      [['default_stop_loss_percent', 'default_break_even_percent'], 'number'],
+		      [['default_stop_loss_percent', 'default_break_even_percent', 'profit_percent_on_break_even', 'stop_loss_percent_on_break_even'], 'number'],
 		      [['token', 'secret'], 'string', 'max' => 255],
 		      [['market_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Market::class, 'targetAttribute' => ['market_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
@@ -103,7 +105,9 @@ class MarketApi extends ActiveRecord
 		    'updated_at' => Yii::t('models', 'Updated At'),
 		    'deleted_at' => Yii::t('models', 'Deleted At'),
 		    'default_stop_loss_percent' => Yii::t('models', 'Default Stop Loss Percent'),
-		    'default_break_even_percent' => Yii::t('models', 'Default Break Even Percent')
+		    'default_break_even_percent' => Yii::t('models', 'Default Break Even Percent'),
+		    'profit_percent_on_break_even' => Yii::t('models', 'Profit Percent On Break Even'),
+		    'stop_loss_percent_on_break_even' => Yii::t('models', 'Stop Loss Percent On Break Even')
 		];
 	}
 

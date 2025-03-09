@@ -185,7 +185,12 @@ class MarketApi extends base\MarketApi
 
     public function getProfitStep($price, $side, $default = 0.03)
     {
-        $percent = $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: $default);
+        $percent = $this->getDefaultBreakEvenPercent($default);
         return $side == 'buy' ? MarketHelper::addPercent($price, $percent) : MarketHelper::subPercent($price, $percent);
+    }
+
+    public function getDefaultBreakEvenPercent($default)
+    {
+        return $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: $default);
     }
 }

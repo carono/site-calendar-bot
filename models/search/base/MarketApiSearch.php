@@ -17,7 +17,7 @@ class MarketApiSearch extends \app\models\MarketApi implements \app\interfaces\S
 	{
 		return [[['id', 'user_id', 'market_id'], 'integer'],
 		[['token', 'secret', 'deleted_at', 'created_at', 'updated_at'], 'safe'],
-		[['default_stop_loss_percent', 'default_break_even_percent'], 'number']];
+		[['default_stop_loss_percent', 'default_break_even_percent', 'profit_percent_on_break_even', 'stop_loss_percent_on_break_even'], 'number']];
 	}
 
 

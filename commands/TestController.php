@@ -6,6 +6,7 @@ use app\clients\bybit\Client;
 use app\components\Bot;
 use app\helpers\AIHelper;
 use app\helpers\MarketHelper;
+use app\helpers\RoundHelper;
 use app\telegram\crypto_signal\determine\SignalDetermine;
 use Yii;
 use yii\console\Controller;
@@ -27,8 +28,8 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-
-
+        var_dump(MarketHelper::addPercent(10, 0.05));
+        exit;
 
         $file = file_get_contents(Yii::getAlias('@runtime/img.png'));
         $base64 = base64_encode($file);
@@ -38,8 +39,8 @@ class TestController extends Controller
                 [
                     'role' => 'user',
                     'content' => [
-                        ["type" => "text","text" => "На этой картинке написаны имена игроков, их мощь и уровень, составь список, не комментируй, только данные: Имя, мощь, уровень"],
-                        ["type" => "image_url","image_url" => ["url" => "data:image/png;base64,$base64"]]
+                        ["type" => "text", "text" => "На этой картинке написаны имена игроков, их мощь и уровень, составь список, не комментируй, только данные: Имя, мощь, уровень"],
+                        ["type" => "image_url", "image_url" => ["url" => "data:image/png;base64,$base64"]]
                     ]
                 ]
             ]
