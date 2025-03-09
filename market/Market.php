@@ -42,4 +42,6 @@ abstract class Market
     abstract public function getOrderInfo($external_id);
 
     abstract public function getOpenOrders();
+
+    abstract public function cancelOrderById($external_id);
 }

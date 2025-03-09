@@ -54,6 +54,15 @@ class BybitController extends Controller
         }
     }
 
+    public function actionCancel($id)
+    {
+        $client = new Client();
+        $client->token = Yii::$app->params['market']['bybit']['token'];
+        $client->secret = Yii::$app->params['market']['bybit']['secret'];
+        $response = $client->cancel($id);
+        print_r($response);
+    }
+
     public function actionInfo($id = null)
     {
         $client = new Client();

@@ -102,4 +102,17 @@ class Client extends \carono\rest\Client
         ], $params);
         return $this->getContent('order/history', $data);
     }
+
+    public function cancel($id)
+    {
+        $response = $this->getOrderInfo('spot', ['orderId' => $id])->result;
+        $category = $response->category;
+        $orderInfo = $response->list[0];
+        $data = [
+            'category' => $category,
+            'symbol' => $orderInfo->symbol,
+            'orderId' => $id
+        ];
+        return $this->getContent('order/cancel', $data, ['method' => 'POST'])->retCode === 0;
+    }
 }

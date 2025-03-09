@@ -4,6 +4,7 @@ namespace app\commands;
 
 use app\clients\bybit\Client;
 use app\components\Bot;
+use app\helpers\AIHelper;
 use app\helpers\MarketHelper;
 use app\telegram\crypto_signal\determine\SignalDetermine;
 use Yii;
@@ -26,7 +27,24 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-        $x = MarketHelper::getRangePercent('0.6519', '0.682');
-        Console::output(Yii::$app->formatter->asPercent($x, 2));
+
+
+
+        $file = file_get_contents(Yii::getAlias('@runtime/img.png'));
+        $base64 = base64_encode($file);
+        $request = [
+            'model' => 'gpt-4o-mini',
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        ["type" => "text","text" => "На этой картинке написаны имена игроков, их мощь и уровень, составь список, не комментируй, только данные: Имя, мощь, уровень"],
+                        ["type" => "image_url","image_url" => ["url" => "data:image/png;base64,$base64"]]
+                    ]
+                ]
+            ]
+        ];
+        $response = AIHelper::getClient()->chat()->create($request);
+        print_r($response);
     }
 }

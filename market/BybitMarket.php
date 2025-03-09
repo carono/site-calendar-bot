@@ -144,4 +144,9 @@ class BybitMarket extends Market
         }
         return $result;
     }
+
+    public function cancelOrderById($external_id)
+    {
+        $this->getClient()->cancel($external_id);
+    }
 }

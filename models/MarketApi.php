@@ -6,11 +6,10 @@
 
 namespace app\models;
 
-use app\exceptions\ValidationException;
 use app\helpers\MarketHelper;
 use app\helpers\RoundHelper;
-use app\market\OrderInfoDTO;
 use app\market\order\OrderRequest;
+use app\market\OrderInfoDTO;
 
 /**
  * This is the model class for table "market_api".
@@ -43,11 +42,21 @@ class MarketApi extends base\MarketApi
         return $client->getOrderInfo($external_id);
     }
 
+    /**
+     * @return \app\market\OrderInfoDTO[]
+     */
     public function getOpenOrders()
     {
         $client = new $this->market->class_name;
         $client->setApi($this);
         return $client->getOpenOrders();
+    }
+
+    public function cancelOrder($id)
+    {
+        $client = new $this->market->class_name;
+        $client->setApi($this);
+        return $client->cancelOrderById($id);
     }
 
     public function getBreakEvenPercent()
