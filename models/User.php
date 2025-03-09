@@ -28,4 +28,10 @@ class User extends base\User
     {
         return $this->getGroups()->select(['name'])->column();
     }
+
+    public function sendMessage(string $string)
+    {
+        $bot = TelegramBot::find()->one();
+        $bot->getBot()->getClient()->sendMessage($this->chat_id, $string);
+    }
 }

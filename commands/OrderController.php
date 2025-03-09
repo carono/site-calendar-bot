@@ -17,11 +17,12 @@ class OrderController extends Controller
     {
         try {
             foreach (MarketApi::find()->each() as $marketApi) {
+                Console::output($marketApi->user->chat_name);
                 foreach ($marketApi->getOpenOrders() as $order) {
                     $currentPrice = $marketApi->getCoinPrice($order->symbol, 'spot');
                     $buyPrice = $order->price;
                     $diff = (float)MarketHelper::getRangePercent($buyPrice, $currentPrice);
-                    if ($diff >= ($marketApi->getDefaultBreakEvenPercent(0.03))) {
+                    if ($diff >= ($breakEven = $marketApi->getDefaultBreakEvenPercent(0.03))) {
                         Console::output($order->symbol . "($order->id)" . " break on $diff");
                         $transaction = Yii::$app->db->beginTransaction();
                         try {
@@ -39,15 +40,16 @@ class OrderController extends Controller
                             if (!$marketApi->cancelOrder($order->id)) {
                                 throw new ValidationException($marketApi);
                             }
-                            $marketApi->user->sendMessage('Закрылись по БУ');
+                            $marketApi->user->sendMessage("Закрылись по БУ $diff");
                             $transaction->commit();
                         } catch (Exception $e) {
                             Yii::error($e);
                         }
 
                     } else {
-                        Console::output($order->symbol . "($order->id)" . ' SKIP');
+                        Console::output($order->symbol . " ($order->id)" . " SKIP on {$diff}, waiting {$breakEven}");
                     }
+                    Console::output('');
 //                $message[] = OrderDecorator::shortOrderInfo($order, $marketApi);
                 }
             }
