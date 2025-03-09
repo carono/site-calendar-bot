@@ -9,6 +9,7 @@ use app\models\Order;
 use Exception;
 use Yii;
 use yii\console\Controller;
+use yii\helpers\Console;
 
 class OrderController extends Controller
 {
@@ -20,7 +21,8 @@ class OrderController extends Controller
                     $currentPrice = $marketApi->getCoinPrice($order->symbol, 'spot');
                     $buyPrice = $order->price;
                     $diff = (float)MarketHelper::getRangePercent($buyPrice, $currentPrice);
-                    if ($diff >= $marketApi->getDefaultBreakEvenPercent(0.03)) {
+                    if ($diff >= ($marketApi->getDefaultBreakEvenPercent(0.03))) {
+                        Console::output($order->symbol . "($order->id)" . " break on $diff");
                         $transaction = Yii::$app->db->beginTransaction();
                         try {
                             $orderModel = Order::createFromDTO($order);
@@ -29,8 +31,8 @@ class OrderController extends Controller
                             $orderModel->price = $marketApi->getCoinPrice($order->symbol, $orderModel->type);
                             $orderModel->break_even_percent = $marketApi->getBreakEvenPercent();
                             $orderModel->sum = $marketApi->getSum();
-                            $orderModel->take_profit1 = MarketHelper::addPercent($orderModel->take_profit1, $marketApi->profit_percent_on_break_even);
-                            $orderModel->stop_loss = MarketHelper::subPercent($orderModel->take_profit1, $marketApi->stop_loss_percent_on_break_even);
+                            $orderModel->take_profit1 = MarketHelper::addPercent($orderModel->price, $marketApi->profit_percent_on_break_even);
+                            $orderModel->stop_loss = MarketHelper::subPercent($orderModel->price, $marketApi->stop_loss_percent_on_break_even);
                             if (!$orderModel->save() || !$orderModel->execute()) {
                                 throw new ValidationException($orderModel);
                             }
@@ -43,9 +45,9 @@ class OrderController extends Controller
                             Yii::error($e);
                         }
 
+                    } else {
+                        Console::output($order->symbol . "($order->id)" . ' SKIP');
                     }
-                    var_dump($diff);
-                    exit;
 //                $message[] = OrderDecorator::shortOrderInfo($order, $marketApi);
                 }
             }
