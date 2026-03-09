@@ -3,6 +3,8 @@
 namespace app\models\gpt;
 
 use app\helpers\AIHelper;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\TransferException;
 use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
@@ -85,14 +87,12 @@ class GptForm extends Model
         Yii::$app->cache->set('gpt-form-models', (array)$this->models);
 
         $this->answers = [];
-        $client = AIHelper::getClient();
 
         foreach ((array)$this->models as $modelId) {
             if (!isset(AIHelper::MODELS[$modelId])) {
                 continue;
             }
-            $response = $client->chat()->create(['model' => $modelId, 'messages' => $messages]);
-            $this->answers[$modelId] = $response->choices[0]->message->content ?? '';
+            $this->answers[$modelId] = $this->callApi($modelId, $messages);
         }
 
         Yii::$app->cache->set('gpt-form-answers', $this->answers);
@@ -119,19 +119,42 @@ class GptForm extends Model
             ."(2) если есть расхождения — укажи, какая версия более убедительна и почему, "
             ."(3) дай итоговый рекомендуемый ответ и оцени степень доверия: высокая / средняя / низкая.";
 
-        $response = AIHelper::getClient()->chat()->create([
-            'model' => $this->consensusModel,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'Ты эксперт-аналитик, который оценивает согласованность ответов нескольких AI-моделей на экзаменационные и тестовые вопросы.',
-                ],
-                ['role' => 'user', 'content' => $content],
+        $this->consensusResult = $this->callApi($this->consensusModel, [
+            [
+                'role'    => 'system',
+                'content' => 'Ты эксперт-аналитик, который оценивает согласованность ответов нескольких AI-моделей на экзаменационные и тестовые вопросы.',
             ],
+            ['role' => 'user', 'content' => $content],
         ]);
-
-        $this->consensusResult = $response->choices[0]->message->content ?? '';
         Yii::$app->cache->set('gpt-form-consensus-model', $this->consensusModel);
+    }
+
+    private function callApi(string $model, array $messages): string
+    {
+        $client = new Client(['timeout' => 120]);
+        try {
+            $response = $client->post('https://routerai.ru/api/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Yii::$app->params['proxy-api']['token'],
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => ['model' => $model, 'messages' => $messages],
+            ]);
+            $data = json_decode($response->getBody()->getContents(), true);
+            return $data['choices'][0]['message']['content'] ?? '';
+        } catch (TransferException $e) {
+            $body    = method_exists($e, 'getResponse') && $e->getResponse()
+                ? (string)$e->getResponse()->getBody()
+                : '';
+            $decoded = $body ? json_decode($body, true) : null;
+            $error   = $decoded['error'] ?? null;
+            if (is_array($error)) {
+                return 'Ошибка API: ' . ($error['message'] ?? json_encode($error));
+            }
+            return 'Ошибка API: ' . ($error ?: $body ?: $e->getMessage());
+        } catch (\Throwable $e) {
+            return 'Ошибка: ' . $e->getMessage();
+        }
     }
 
 }
