@@ -92,35 +92,30 @@ if ($showAnswers) {
 }
 
 // Consensus block
-if ($cachedAnswers && !$cachedPending) {
-    // Answers ready, no pending — show consensus form
-    echo "<div id='consensus-block'>";
+$showConsensusForm = $cachedAnswers && !$cachedPending;
+echo "<div id='consensus-block'" . ($showConsensusForm ? '' : " style='display:none'") . ">";
+if ($showConsensusForm) {
     echo "<div class='panel panel-default'>";
     echo "<div class='panel-heading'><strong>Анализ консенсуса</strong></div>";
     echo "<div class='panel-body'>";
-    $cForm = ActiveForm::begin(['action' => Url::to(['/gpt/consensus']), 'method' => 'post', 'id' => 'consensus-form']);
-    echo $cForm->field($model, 'consensusModel')->dropDownList(AIHelper::MODELS)->label('Модель-арбитр');
-    echo Html::submitButton(
+    echo Html::dropDownList('consensus_model', $model->consensusModel, AIHelper::MODELS, ['class' => 'form-control', 'id' => 'consensus-model-select', 'style' => 'margin-bottom:8px']);
+    echo Html::button(
         '<span class="glyphicon glyphicon-check"></span> Определить консенсус',
-        ['class' => 'btn btn-success']
+        ['class' => 'btn btn-success', 'id' => 'consensus-btn']
     );
-    ActiveForm::end();
-    echo "</div></div></div>";
-} else {
-    echo "<div id='consensus-block' style='display:none'></div>";
+    echo "</div></div>";
 }
+echo "</div>";
 
 echo "</div>"; // #answers-area
 
-// --- Consensus result (from POST) ---
-if ($model->consensusResult) {
-    $arbitrName = Html::encode(AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel);
-    echo "<div class='panel panel-success' id='consensus-result'>";
-    echo "<div class='panel-heading'><strong>Вывод консенсуса</strong> ";
-    echo "<small class='text-muted'>— арбитр: {$arbitrName}</small></div>";
-    echo "<div class='panel-body answer-body'>" . Html::encode($model->consensusResult) . "</div>";
-    echo "</div>";
-}
+// --- Consensus result ---
+$arbitrName = Html::encode(AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel);
+echo "<div id='consensus-result'" . ($model->consensusResult ? '' : " style='display:none'") . ">";
+echo "<div class='panel panel-success'>";
+echo "<div class='panel-heading'><strong>Вывод консенсуса</strong> <small class='text-muted' id='consensus-arbitr'>— арбитр: {$arbitrName}</small></div>";
+echo "<div class='panel-body answer-body' id='consensus-body'>" . Html::encode($model->consensusResult) . "</div>";
+echo "</div></div>";
 
 // --- JS ---
 $pushUrl      = Url::to(['/gpt/push']);
@@ -128,33 +123,20 @@ $statusUrl    = Url::to(['/gpt/status']);
 $consensusUrl = Url::to(['/gpt/consensus']);
 $allModels    = Json::encode(AIHelper::MODELS);
 $csrfParam    = Yii::$app->request->csrfParam;
-
-// Pre-build consensus form HTML for dynamic injection
-ob_start();
-$cFormJs = ActiveForm::begin(['action' => $consensusUrl, 'method' => 'post', 'id' => 'consensus-form']);
-echo $cFormJs->field($model, 'consensusModel')->dropDownList(AIHelper::MODELS)->label('Модель-арбитр');
-echo Html::submitButton(
-    '<span class="glyphicon glyphicon-check"></span> Определить консенсус',
-    ['class' => 'btn btn-success']
-);
-ActiveForm::end();
-$consensusFormHtml = Json::encode(ob_get_clean());
-
-// If there are still pending models on page load — start polling immediately
 $initialPending = Json::encode($cachedPending);
-
-$jsPushUrl    = Json::encode($pushUrl);
-$jsStatusUrl  = Json::encode($statusUrl);
-$jsCsrfParam  = Json::encode($csrfParam);
+$jsPushUrl      = Json::encode($pushUrl);
+$jsStatusUrl    = Json::encode($statusUrl);
+$jsConsensusUrl = Json::encode($consensusUrl);
+$jsCsrfParam    = Json::encode($csrfParam);
 
 $this->registerJs(<<<JS
 (function () {
-    var MODELS            = {$allModels};
-    var pushUrl           = {$jsPushUrl};
-    var statusUrl         = {$jsStatusUrl};
-    var consensusFormHtml = {$consensusFormHtml};
-    var csrfParam         = {$jsCsrfParam};
-    var initialPending    = {$initialPending};
+    var MODELS        = {$allModels};
+    var pushUrl       = {$jsPushUrl};
+    var statusUrl     = {$jsStatusUrl};
+    var consensusUrl  = {$jsConsensusUrl};
+    var csrfParam     = {$jsCsrfParam};
+    var initialPending = {$initialPending};
 
     var pollTimer   = null;
     var pollTimeout = 300000; // 5 минут максимум
@@ -202,12 +184,63 @@ $this->registerJs(<<<JS
     function showConsensusForm() {
         var block = document.getElementById('consensus-block');
         if (!block) return;
-        block.innerHTML =
-            '<div class="panel panel-default">' +
-            '<div class="panel-heading"><strong>Анализ консенсуса</strong></div>' +
-            '<div class="panel-body">' + consensusFormHtml + '</div></div>';
+        // Если форма ещё не построена — создаём её
+        if (!document.getElementById('consensus-model-select')) {
+            var opts = Object.entries(MODELS).map(function(e) {
+                return '<option value="' + escHtml(e[0]) + '">' + escHtml(e[1]) + '</option>';
+            }).join('');
+            block.innerHTML =
+                '<div class="panel panel-default">' +
+                '<div class="panel-heading"><strong>Анализ консенсуса</strong></div>' +
+                '<div class="panel-body">' +
+                '<select id="consensus-model-select" class="form-control" style="margin-bottom:8px">' + opts + '</select>' +
+                '<button id="consensus-btn" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Определить консенсус</button>' +
+                '</div></div>';
+        }
         block.style.display = '';
     }
+
+    function handleConsensusClick() {
+        var btn = document.getElementById('consensus-btn');
+        var select = document.getElementById('consensus-model-select');
+        if (!btn || !select) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="glyphicon glyphicon-refresh icon-spin"></span> Анализирую...';
+
+        var resultDiv  = document.getElementById('consensus-result');
+        var resultBody = document.getElementById('consensus-body');
+        var arbitrEl   = document.getElementById('consensus-arbitr');
+        resultDiv.style.display = 'none';
+
+        var data = new FormData();
+        data.append(csrfParam, getcsrf());
+        data.append('GptForm[consensusModel]', select.value);
+
+        fetch(consensusUrl, { method: 'POST', body: data })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res.result) {
+                    resultBody.textContent = res.result;
+                    arbitrEl.textContent   = '— арбитр: ' + (res.modelName || select.value);
+                    resultDiv.style.display = '';
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(function(err) { alert('Ошибка: ' + err.message); })
+            .finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="glyphicon glyphicon-check"></span> Определить консенсус';
+            });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.closest && e.target.closest('#consensus-btn')) {
+            handleConsensusClick();
+        } else if (e.target && e.target.id === 'consensus-btn') {
+            handleConsensusClick();
+        }
+    });
 
     function stopPolling() {
         if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }

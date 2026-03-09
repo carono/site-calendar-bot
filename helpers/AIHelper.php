@@ -12,20 +12,23 @@ use yii\helpers\ArrayHelper;
 
 class AIHelper
 {
+
     const MODELS = [
-        'openai/gpt-5.4-pro'          => 'GPT-5.4 Pro',
+        'openai/gpt-5.4' => 'GPT-5.4',
         'anthropic/claude-sonnet-4.6' => 'Claude Sonnet 4.6',
-        'x-ai/grok-4'                 => 'Grok 4',
+        'x-ai/grok-4' => 'Grok 4',
     ];
 
-    const DEFAULT_MODEL = 'openai/gpt-5.4-pro';
+    const DEFAULT_MODEL = 'openai/gpt-5.4';
 
     private $systemCommands = [];
+
     private string $model = self::DEFAULT_MODEL;
 
     public function withModel(string $model): static
     {
         $this->model = $model;
+
         return $this;
     }
 
@@ -43,6 +46,7 @@ class AIHelper
                 $this->systemCommands = array_merge($this->systemCommands, $message);
             }
         }
+
         return $this;
     }
 
@@ -63,6 +67,7 @@ class AIHelper
         if ($model !== null) {
             $instance->withModel($model);
         }
+
         return $instance;
     }
 
@@ -73,10 +78,11 @@ class AIHelper
             'messages' => array_merge($this->systemCommands, $messages, [
                 [
                     'role' => 'user',
-                    'content' => $question
-                ]
-            ])
+                    'content' => $question,
+                ],
+            ]),
         ];
+
         return static::getClient()->chat()->create($request);
     }
 
@@ -89,8 +95,10 @@ class AIHelper
     {
         $this->systemCommands[] = [
             'role' => 'system',
-            'content' => $command->prompt
+            'content' => $command->prompt,
         ];
+
         return $this;
     }
+
 }

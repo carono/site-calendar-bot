@@ -39,8 +39,9 @@ class GptForm extends Model
         $this->system = Yii::$app->cache->get('gpt-form-system');
         $this->prompt = Yii::$app->cache->get('gpt-form-prompt');
         $this->models = Yii::$app->cache->get('gpt-form-models') ?: array_keys(AIHelper::MODELS);
-        $this->consensusModel = Yii::$app->cache->get('gpt-form-consensus-model') ?: AIHelper::DEFAULT_MODEL;
-        $this->answers        = Yii::$app->cache->get('gpt-form-answers') ?: [];
+        $this->consensusModel  = Yii::$app->cache->get('gpt-form-consensus-model') ?: AIHelper::DEFAULT_MODEL;
+        $this->answers         = Yii::$app->cache->get('gpt-form-answers') ?: [];
+        $this->consensusResult = Yii::$app->cache->get('gpt-form-consensus-result') ?: '';
     }
 
     private function buildMessages(): array
@@ -109,24 +110,34 @@ class GptForm extends Model
             return;
         }
 
-        $content = "Вопрос:\n{$question}\n\n";
+        $content = "Вопрос теста:\n{$question}\n\n";
         foreach ($this->answers as $modelId => $answer) {
             $modelName = AIHelper::MODELS[$modelId] ?? $modelId;
-            $content .= "--- Ответ от {$modelName} ---\n{$answer}\n\n";
+            $content .= "=== {$modelName} ===\n{$answer}\n\n";
         }
-        $content .= "Проанализируй ответы нескольких AI-моделей на вопрос из теста/экзамена. "
-            ."Определи: (1) пришли ли модели к единому ответу (консенсус есть / нет), "
-            ."(2) если есть расхождения — укажи, какая версия более убедительна и почему, "
-            ."(3) дай итоговый рекомендуемый ответ и оцени степень доверия: высокая / средняя / низкая.";
+        $content .= implode("\n", [
+            "Каждый ответ выше содержит:",
+            "- переписанный вопрос",
+            "- блок «Рассуждение» с анализом философских понятий и аргументацией выбора",
+            "- итоговый ответ после разделителя ---",
+            "",
+            "Твоя задача:",
+            "1. Сравни итоговые ответы всех моделей — совпадают ли они (консенсус: есть / частичный / нет).",
+            "2. Изучи рассуждения: чья аргументация наиболее точна с точки зрения философии? Есть ли фактические ошибки в чьих-либо рассуждениях?",
+            "3. Если ответы расходятся — определи, какой из них правильный и почему, опираясь на качество рассуждений.",
+            "4. Дай итоговый рекомендуемый ответ (в том же формате: >> для выбора или текст для вставки).",
+            "5. Оцени степень доверия к ответу: высокая / средняя / низкая — и кратко объясни оценку.",
+        ]);
 
         $this->consensusResult = $this->callApi($this->consensusModel, [
             [
                 'role'    => 'system',
-                'content' => 'Ты эксперт-аналитик, который оценивает согласованность ответов нескольких AI-моделей на экзаменационные и тестовые вопросы.',
+                'content' => 'Ты эксперт по философии и аналитик качества ответов AI. Умеешь оценивать корректность философских рассуждений и выявлять ошибки в аргументации.',
             ],
             ['role' => 'user', 'content' => $content],
         ]);
         Yii::$app->cache->set('gpt-form-consensus-model', $this->consensusModel);
+        Yii::$app->cache->set('gpt-form-consensus-result', $this->consensusResult);
     }
 
     private function callApi(string $model, array $messages): string

@@ -22,11 +22,16 @@ class GptController extends Controller
 
     public function actionConsensus()
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         $model = new GptForm();
         $model->load(Yii::$app->request->post());
         $model->checkConsensus();
 
-        return $this->render('index', ['model' => $model]);
+        return [
+            'result'    => $model->consensusResult,
+            'modelName' => AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel,
+        ];
     }
 
     /**
