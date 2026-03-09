@@ -61,14 +61,7 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
-    public function actionGpt()
-    {
-        $model = new GptForm();
-        if ($model->load(Yii::$app->request->post())) {
-            $model->ask();
-        }
-        return $this->render('gpt', ['model' => $model]);
-    }
+
 
     public function actionLogin()
     {

@@ -7,7 +7,7 @@ return [
         'rules' => [
             '/' => 'site/index',
             'callback' => 'callback/index',
-            'gpt' => 'site/gpt',
+            'gpt' => 'gpt/index',
             '<module>/<controller>/<action>' => '<module>/<controller>/<action>',
             '<controller>/<action>' => '<controller>/<action>',
             '<action>' => ''
