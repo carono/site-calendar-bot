@@ -35,7 +35,16 @@ use yii\helpers\ArrayHelper;
  * @property string $price_fact
  * @property string $break_even_percent
  * @property string $last_updated_price
+ * @property string $deleted_at
+ * @property string $base_price
+ * @property string $trigger_price
+ * @property string $sl_limit_price
+ * @property string $tp_limit_price
+ * @property string $stop_order_type
+ * @property string $order_type
+ * @property string $cancel_type
  * @property string $created_at
+ * @property string $updated_at
  *
  * @property \app\models\Coin $coin
  * @property \app\models\MarketApi $marketApi
@@ -59,7 +68,7 @@ class Order extends ActiveRecord
 		        'class' => 'yii\behaviors\TimestampBehavior',
 		        'value' => new \yii\db\Expression('NOW()'),
 		        'createdAtAttribute' => 'created_at',
-		        'updatedAtAttribute' => null
+		        'updatedAtAttribute' => 'updated_at'
 		    ]
 		];
 	}
@@ -74,14 +83,14 @@ class Order extends ActiveRecord
 		[['user_id', 'market_api_id', 'coin_id', 'log_id'], 'default', 'value' => null],
 		      [['user_id', 'market_api_id', 'coin_id', 'log_id'], 'integer'],
 		      [['type', 'side', 'external_id'], 'string'],
-		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max', 'sum', 'price_fact', 'break_even_percent', 'last_updated_price'], 'number'],
-		      [['executed_at'], 'safe'],
-		      [['status'], 'string', 'max' => 255],
+		      [['stop_loss', 'take_profit1', 'take_profit2', 'take_profit3', 'take_profit4', 'price', 'price_min', 'price_max', 'sum', 'price_fact', 'break_even_percent', 'last_updated_price', 'base_price', 'trigger_price', 'sl_limit_price', 'tp_limit_price'], 'number'],
+		      [['executed_at', 'deleted_at'], 'safe'],
+		      [['status', 'stop_order_type', 'order_type', 'cancel_type'], 'string', 'max' => 255],
 		      [['coin_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\Coin::class, 'targetAttribute' => ['coin_id' => 'id']],
 		      [['market_api_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\MarketApi::class, 'targetAttribute' => ['market_api_id' => 'id']],
 		      [['log_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\TelegramLog::class, 'targetAttribute' => ['log_id' => 'id']],
 		      [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
-		      [['type', 'side', 'external_id', 'status'], 'trim']
+		      [['type', 'side', 'external_id', 'status', 'stop_order_type', 'order_type', 'cancel_type'], 'trim']
 		];
 	}
 
@@ -138,7 +147,16 @@ class Order extends ActiveRecord
 		    'price_fact' => Yii::t('models', 'Price Fact'),
 		    'break_even_percent' => Yii::t('models', 'Break Even Percent'),
 		    'created_at' => Yii::t('models', 'Created At'),
-		    'last_updated_price' => Yii::t('models', 'Last Updated Price')
+		    'last_updated_price' => Yii::t('models', 'Last Updated Price'),
+		    'deleted_at' => Yii::t('models', 'Deleted At'),
+		    'base_price' => Yii::t('models', 'Base Price'),
+		    'trigger_price' => Yii::t('models', 'Trigger Price'),
+		    'sl_limit_price' => Yii::t('models', 'Sl Limit Price'),
+		    'tp_limit_price' => Yii::t('models', 'Tp Limit Price'),
+		    'stop_order_type' => Yii::t('models', 'Stop Order Type'),
+		    'order_type' => Yii::t('models', 'Order Type'),
+		    'cancel_type' => Yii::t('models', 'Cancel Type'),
+		    'updated_at' => Yii::t('models', 'Updated At')
 		];
 	}
 

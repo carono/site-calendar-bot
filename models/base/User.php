@@ -20,6 +20,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $daily_task_avg_count
  * @property string $default_stop_loss_percent
  * @property string $default_break_even_percent
+ * @property string $password_hash
  * @property string $created_at
  * @property string $updated_at
  *
@@ -56,9 +57,10 @@ class User extends ActiveRecord
 		[['chat_id', 'daily_task_avg_count'], 'default', 'value' => null],
 		      [['chat_id', 'daily_task_avg_count'], 'integer'],
 		      [['default_stop_loss_percent', 'default_break_even_percent'], 'number'],
-		      [['chat_name'], 'string', 'max' => 255],
+		      [['chat_name', 'password_hash'], 'string', 'max' => 255],
 		      [['phone'], 'string', 'max' => 12],
-		      [['chat_id'], 'unique']
+		      [['chat_id'], 'unique'],
+		      [['password_hash'], 'trim']
 		];
 	}
 
@@ -101,7 +103,8 @@ class User extends ActiveRecord
 		    'updated_at' => Yii::t('models', 'Updated At'),
 		    'daily_task_avg_count' => Yii::t('models', 'Daily Task Avg Count'),
 		    'default_stop_loss_percent' => Yii::t('models', 'Default Stop Loss Percent'),
-		    'default_break_even_percent' => Yii::t('models', 'Default Break Even Percent')
+		    'default_break_even_percent' => Yii::t('models', 'Default Break Even Percent'),
+		    'password_hash' => Yii::t('models', 'Password Hash')
 		];
 	}
 

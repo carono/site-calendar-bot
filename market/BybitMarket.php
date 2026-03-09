@@ -92,6 +92,7 @@ class BybitMarket extends Market
         if (isset($response->result->orderId)) {
             return (int)$response->result->orderId;
         }
+        Yii::error(array_filter($params));
         $request->addError('coin', $response->retMsg);
         return false;
     }
@@ -113,11 +114,8 @@ class BybitMarket extends Market
     public function getOrderInfo($external_id)
     {
         $response = $this->getClient()->getOrderInfo('spot');
-//        file_put_contents('2.json', json_encode($response));
-//        var_dump(1);
-//        exit;
         $result = new OrderInfoDTO();
-        $result->status = $response->result->list[0]->orderStatus;
+        $result->orderStatus = $response->result->list[0]->orderStatus;
         $result->price = $response->result->list[0]->price;
         return $result;
     }
@@ -125,14 +123,10 @@ class BybitMarket extends Market
     protected function orderInfoToDTO($data)
     {
         $item = new OrderInfoDTO();
-        $item->id = $data->orderId;
-        $item->status = $data->orderStatus;
-        $item->price = $data->basePrice;
-        $item->takeProfit = $data->takeProfit;
-        $item->stopLoss = $data->stopLoss;
-        $item->qty = $data->qty;
-        $item->symbol = $data->symbol;
-        $item->basePrice = $data->basePrice;
+        $item->setAttributes($data);
+        foreach ($item->getAttributes() as $attribute => $val) {
+            $item->$attribute = $data->$attribute;
+        }
         return $item;
     }
 

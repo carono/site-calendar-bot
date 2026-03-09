@@ -74,7 +74,7 @@ HTML;
                 $info = $api->getOrderInfo(trim($order->external_id));
                 $price = $api->getCoinPrice($order->coin->code, $order->type);
                 $order->updateAttributes([
-                    'status' => $info->status,
+                    'status' => $info->orderStatus,
                     'last_updated_price' => $price,
                     'price_fact' => $info->price
                 ]);

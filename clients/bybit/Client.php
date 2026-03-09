@@ -22,8 +22,8 @@ class Client extends \carono\rest\Client
                 'X-BAPI-API-KEY' => $this->token,
                 'X-BAPI-RECV-WINDOW' => 5000,
             ],
-//            'proxy' => '192.168.1.254:8888',
-//            'verify' => false
+            'proxy' => '192.168.1.254:8888',
+            'verify' => false
         ];
     }
 
@@ -74,7 +74,7 @@ class Client extends \carono\rest\Client
             'orderType' => (string)$orderType,
             'qty' => (string)$qty,
         ], $params);
-//        Yii::error(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'telegram');
+        Yii::info(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'market');
         return $this->getContent('order/create', $data, ['method' => 'POST']);
     }
 

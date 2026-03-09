@@ -2,14 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\gpt\GptForm;
+use app\modules\site\models\LoginForm;
 use Yii;
-use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\helpers\Html;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\widgets\ActiveForm;
 
 class SiteController extends Controller
 {
@@ -55,119 +55,40 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
+
     public function actionIndex()
     {
         return $this->render('index');
     }
 
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
+    public function actionGpt()
+    {
+        $model = new GptForm();
+        if ($model->load(Yii::$app->request->post())) {
+            $model->ask();
+        }
+        return $this->render('gpt', ['model' => $model]);
+    }
+
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            return $this->redirect('/');
         }
 
-        $model = new LoginForm();
+        $model = new \app\models\forms\LoginForm();
         if ($model->load(Yii::$app->request->post())) {
+            if (Yii::$app->request->isAjax) {
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                return ActiveForm::validate($model);
+            }
+
             if ($model->login()) {
-                return $this->goBack();
+                return $this->redirect('/');
             }
-            Yii::$app->session->setFlash('error', Html::errorSummary($model));
         }
-
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('login', ['model' => $model]);
     }
 
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
 
-        return $this->goHome();
-    }
-
-    public function actionRegister()
-    {
-        $model = new RegisterForm();
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->user->login($model);
-                return $this->goHome();
-            }
-            Yii::$app->session->setFlash('danger', current($model->getFirstErrors()));
-        }
-        return $this->render('register', ['model' => $model]);
-    }
-
-    /**
-     * @param $id
-     * @param $token
-     * @return string|Response
-     * @throws NotFoundHttpException
-     */
-    public function actionReset($id, $token)
-    {
-        $model = ResetForm::find()->andWhere(['id' => $id, 'reset_password_token' => $token])->one();
-        if (!$model) {
-            throw new NotFoundHttpException(Yii::t('errors', 'User Not Found'));
-        }
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', Yii::t('app', 'Password Was Changed'));
-                Yii::$app->user->login($model);
-                return $this->goHome();
-            }
-            Yii::$app->session->setFlash('danger', Html::errorSummary($model));
-        }
-        return $this->render('reset', ['model' => $model]);
-    }
-
-    public function actionForget()
-    {
-        $model = new ForgetForm();
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', Yii::t('messages', 'Check Your Email'));
-                return $this->refresh();
-            }
-            Yii::$app->session->setFlash('danger', Html::errorSummary($model));
-        }
-        return $this->render('forget', ['model' => $model]);
-    }
-
-    /**
-     * @param $id
-     * @param $confirm_token
-     * @return Response
-     * @throws NotFoundHttpException
-     */
-    public function actionConfirm($id, $confirm_token)
-    {
-        $user = User::find()->andWhere(['id' => $id, 'confirm_token' => $confirm_token])->one();
-        if (!$user) {
-            throw new NotFoundHttpException(Yii::t('errors', 'User Not Found'));
-        }
-        $user->confirm_token = null;
-        $user->confirmed_at = new Expression('NOW()');
-        $user->save();
-
-        Yii::$app->session->setFlash('success', Yii::t('messages', 'Confirmation Successful'));
-        return $this->redirect(['/']);
-    }
 }

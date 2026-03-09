@@ -39,14 +39,18 @@ class Bot extends \carono\telegram\Bot
     protected function orderToMessage(Order $order)
     {
         $type = $order->side == 'buy' ? '🟢 LONG' : '🔴 SHORT';
-        $stopPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->stop_loss));
-        $targetPercent = Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->take_profit1));
+        $stopPercent = $order->stop_loss ? Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->stop_loss)) : '-';
+        $targetPercent = $order->take_profit1 ? Yii::$app->formatter->asPercent(MarketHelper::getRangePercent($order->price, $order->take_profit1)) : '-';
+        $evenBreakPercent = $order->break_even_percent ? Yii::$app->formatter->asPercent($order->break_even_percent) : '-';
+        $evenBreak = MarketHelper::addPercent($order->price, $order->break_even_percent);
+
         $message = <<<HTML
 $type 
  
 🪙 Токен: {$order->coin->code}
 💰 Текущая цена: {$order->price}
 💰 Вход: {$order->price_min} - {$order->price_max} 
+🎯 БУ: {$evenBreak} ($evenBreakPercent)
 🎯 Цель: {$order->take_profit1} ($targetPercent)
 ⛔️ Стоп: {$order->stop_loss} ($stopPercent)
 

@@ -6,12 +6,14 @@
 
 namespace app\models;
 
+use Yii;
 use yii\helpers\ArrayHelper;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "user".
  */
-class User extends base\User
+class User extends base\User implements IdentityInterface
 {
 
     public function getActiveTasks()
@@ -33,5 +35,37 @@ class User extends base\User
     {
         $bot = TelegramBot::find()->one();
         $bot->getBot()->getClient()->sendMessage($this->chat_id, $string);
+    }
+
+    public static function findByUsername($login)
+    {
+        return User::findOne(['chat_name' => $login]);
+    }
+
+    public static function findIdentity($id)
+    {
+        return User::findOne($id);
+    }
+
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+    }
+
+    public function validateAuthKey($authKey)
+    {
     }
 }

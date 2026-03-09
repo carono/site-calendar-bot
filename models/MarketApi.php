@@ -8,6 +8,7 @@ namespace app\models;
 
 use app\helpers\MarketHelper;
 use app\helpers\RoundHelper;
+use app\market\BybitMarket;
 use app\market\order\OrderRequest;
 use app\market\OrderInfoDTO;
 
@@ -47,6 +48,9 @@ class MarketApi extends base\MarketApi
      */
     public function getOpenOrders()
     {
+        /**
+         * @var BybitMarket $client
+         */
         $client = new $this->market->class_name;
         $client->setApi($this);
         return $client->getOpenOrders();
@@ -57,11 +61,6 @@ class MarketApi extends base\MarketApi
         $client = new $this->market->class_name;
         $client->setApi($this);
         return $client->cancelOrderById($id);
-    }
-
-    public function getBreakEvenPercent()
-    {
-        return $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: 0.03);
     }
 
     public function getCoinPrice($coin, $type)
@@ -185,11 +184,11 @@ class MarketApi extends base\MarketApi
 
     public function getProfitStep($price, $side, $default = 0.03)
     {
-        $percent = $this->getDefaultBreakEvenPercent($default);
+        $percent = $this->getBreakEvenPercent($default);
         return $side == 'buy' ? MarketHelper::addPercent($price, $percent) : MarketHelper::subPercent($price, $percent);
     }
 
-    public function getDefaultBreakEvenPercent($default)
+    public function getBreakEvenPercent($default = 0.03)
     {
         return $this->default_break_even_percent ?: ($this->user->default_break_even_percent ?: $default);
     }

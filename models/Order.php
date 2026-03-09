@@ -7,6 +7,7 @@
 namespace app\models;
 
 use app\exceptions\ValidationException;
+use app\helpers\MarketHelper;
 use app\market\order\OrderLongRequest;
 use app\market\order\OrderRequest;
 use Exception;
@@ -20,16 +21,18 @@ class Order extends base\Order
     public static function fromRequest(OrderRequest $request, $message_id, MarketApi $marketApi)
     {
         $model = new static();
+        $model->type = \app\market\Market::TYPE_SPOT;
+        $model->price = $marketApi->getCoinPrice($request->coin, trim($model->type));
+
         $model->coin_id = Coin::findOrCreateByCode($request->coin)->id;
         $model->side = $request instanceof OrderLongRequest ? \app\market\Market::METHOD_BUY : \app\market\Market::METHOD_SELL;
-        $model->stop_loss = $marketApi->getStopLoss($model->price, $model->side);
-        $model->take_profit1 = $marketApi->getProfitStep($model->price, $model->side);
+//        $model->stop_loss = $marketApi->getStopLoss($model->price, $model->side);
+        $model->take_profit1 = MarketHelper::addPercent($model->price, 0.03);
         $model->created_at = new Expression('NOW()');
-        $model->type = \app\market\Market::TYPE_SPOT;
+
 
         $model->user_id = $marketApi->user_id;
         $model->market_api_id = $marketApi->market_id;
-        $model->price = $marketApi->getCoinPrice($request->coin, trim($model->type));
         $model->break_even_percent = $marketApi->getBreakEvenPercent();
         $model->price_max = $request->price_max;
         $model->price_min = $request->price_min;
@@ -50,6 +53,7 @@ class Order extends base\Order
         $model->take_profit1 = $order->takeProfit;
         $model->created_at = new Expression('NOW()');
         $model->type = \app\market\Market::TYPE_SPOT;
+        $model->external_id = $order->orderId;
 
         return $model;
     }

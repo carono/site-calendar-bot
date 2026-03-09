@@ -71,7 +71,7 @@ class MarketHelper
         if ($int1 == 0) {
             return '0';
         }
-        $result = RoundHelper::stripPrecision($diff / $int1, 4);
+        $result = RoundHelper::stripPrecision(bcdiv($diff, $int1, 4), 4);
         return $format ? Yii::$app->formatter->asPercent($result, 2) : $result;
     }
 }

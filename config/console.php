@@ -1,5 +1,6 @@
 <?php
 
+use carono\yii2rbac\RbacController;
 use yii\helpers\ArrayHelper;
 
 $params = ArrayHelper::merge(require __DIR__ . '/params.php', file_exists(__DIR__ . '/params-local.php') ? require __DIR__ . '/params-local.php' : []);
@@ -35,6 +36,16 @@ $config = [
         ],
         'message' => [
             'class' => 'app\commands\MessageController'
+        ],
+        'rbac' => [
+            'class' => RbacController::class,
+            'roles' => [
+                'user' => [],
+                'root' => 'user'
+            ],
+            'permissions' => [
+                'Basic:Order:*' => ['user'],
+            ]
         ],
         'giix' => [
             'class' => 'carono\giix\GiixController',

@@ -31,15 +31,19 @@
     "symfony/http-client": "^7.0",
     "nyholm/psr7": "^1.8",
     "guzzlehttp/guzzle": "^7.8",
-    "carono/rest-client": "^0.2.7",
+    "carono/rest-client": "^0.3.1",
     "ext-bcmath": "*",
-    "carono/yii2-telegram-target-log": "@dev"
+    "carono/yii2-telegram-target-log": "@dev",
+    "kartik-v/yii2-widget-fileinput": "dev-master",
+    "carono/yii2-rbac": "^1.1",
+    "carono/yii2-crud": "^0.2.3"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",
     "yiisoft/yii2-gii": "~2.1.0",
     "yiisoft/yii2-faker": "~2.0.0",
-    "symfony/browser-kit": ">=2.7 <=4.2.4"
+    "symfony/browser-kit": ">=2.7 <=4.2.4",
+    "larapack/dd": "^1.1"
   },
   "config": {
     "sort": true,

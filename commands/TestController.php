@@ -28,9 +28,6 @@ class TestController extends Controller
 
     public function actionIndex()
     {
-        var_dump(MarketHelper::addPercent(10, 0.05));
-        exit;
-
         $file = file_get_contents(Yii::getAlias('@runtime/img.png'));
         $base64 = base64_encode($file);
         $request = [
@@ -38,10 +35,7 @@ class TestController extends Controller
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => [
-                        ["type" => "text", "text" => "На этой картинке написаны имена игроков, их мощь и уровень, составь список, не комментируй, только данные: Имя, мощь, уровень"],
-                        ["type" => "image_url", "image_url" => ["url" => "data:image/png;base64,$base64"]]
-                    ]
+                    'content' => 'Сколько будет 2  +2'
                 ]
             ]
         ];
