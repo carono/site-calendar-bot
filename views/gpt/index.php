@@ -17,10 +17,28 @@ $selectedModels = (array)$model->models;
 $cachedAnswers  = $model->answers;
 $cachedPending  = Yii::$app->cache->get('gpt-form-pending') ?: [];
 
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/marked/marked.min.js', ['position' => \yii\web\View::POS_HEAD]);
+
 $this->registerCss(<<<CSS
 @keyframes gpt-spin { to { transform: rotate(360deg); } }
 .icon-spin { display:inline-block; animation:gpt-spin 1s linear infinite; }
 .answer-body { white-space:pre-wrap; word-break:break-word; }
+
+/* Markdown-рендер консенсуса */
+.consensus-md h1,.consensus-md h2,.consensus-md h3 { margin-top:16px; margin-bottom:8px; font-weight:600; border-bottom:1px solid #d6e9c6; padding-bottom:4px; }
+.consensus-md h1 { font-size:1.4em; }
+.consensus-md h2 { font-size:1.2em; }
+.consensus-md h3 { font-size:1.05em; }
+.consensus-md p  { margin:0 0 10px; line-height:1.6; }
+.consensus-md ul,.consensus-md ol { padding-left:24px; margin-bottom:10px; }
+.consensus-md li { margin-bottom:4px; line-height:1.6; }
+.consensus-md strong { font-weight:700; }
+.consensus-md em { font-style:italic; }
+.consensus-md code { background:#d6e9c6; padding:1px 5px; border-radius:3px; font-family:monospace; font-size:.92em; }
+.consensus-md pre { background:#dff0d8; border:1px solid #d6e9c6; border-radius:4px; padding:10px; overflow-x:auto; }
+.consensus-md pre code { background:none; padding:0; }
+.consensus-md blockquote { border-left:4px solid #5cb85c; padding:6px 12px; margin:0 0 10px; color:#555; background:#f0faf0; border-radius:0 4px 4px 0; }
+.consensus-md hr { border:0; border-top:1px solid #d6e9c6; margin:14px 0; }
 CSS);
 
 // --- Main form ---
@@ -110,11 +128,12 @@ echo "</div>";
 echo "</div>"; // #answers-area
 
 // --- Consensus result ---
-$arbitrName = Html::encode(AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel);
+$arbitrName   = Html::encode(AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel);
+$rawMd        = Html::encode($model->consensusResult); // для data-атрибута (HTML-escaped)
 echo "<div id='consensus-result'" . ($model->consensusResult ? '' : " style='display:none'") . ">";
 echo "<div class='panel panel-success'>";
 echo "<div class='panel-heading'><strong>Вывод консенсуса</strong> <small class='text-muted' id='consensus-arbitr'>— арбитр: {$arbitrName}</small></div>";
-echo "<div class='panel-body answer-body' id='consensus-body'>" . Html::encode($model->consensusResult) . "</div>";
+echo "<div class='panel-body consensus-md' id='consensus-body' data-md='{$rawMd}'></div>";
 echo "</div></div>";
 
 // --- JS ---
@@ -147,6 +166,25 @@ $this->registerJs(<<<JS
         d.appendChild(document.createTextNode(String(str)));
         return d.innerHTML;
     }
+
+    function renderMarkdown(el, mdText) {
+        if (typeof marked !== 'undefined') {
+            el.innerHTML = marked.parse(mdText);
+        } else {
+            el.textContent = mdText;
+        }
+    }
+
+    // Рендерим markdown если на странице уже есть закешированный результат
+    (function () {
+        var body = document.getElementById('consensus-body');
+        if (body && body.dataset.md) {
+            // data-md хранится HTML-encoded, декодируем через textarea
+            var ta = document.createElement('textarea');
+            ta.innerHTML = body.dataset.md;
+            renderMarkdown(body, ta.value);
+        }
+    })();
 
     function safeKey(modelId) {
         return modelId.replace(/[^a-z0-9]/gi, '_');
@@ -221,8 +259,8 @@ $this->registerJs(<<<JS
             .then(function(r) { return r.json(); })
             .then(function(res) {
                 if (res.result) {
-                    resultBody.textContent = res.result;
-                    arbitrEl.textContent   = '— арбитр: ' + (res.modelName || select.value);
+                    renderMarkdown(resultBody, res.result);
+                    arbitrEl.textContent    = '— арбитр: ' + (res.modelName || select.value);
                     resultDiv.style.display = '';
                     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }

@@ -16,6 +16,9 @@ class GptController extends Controller
     public function actionIndex()
     {
         $model = new GptForm();
+        if (Yii::$app->request->post()) {
+            return $this->refresh();
+        }
 
         return $this->render('index', ['model' => $model]);
     }
@@ -29,7 +32,7 @@ class GptController extends Controller
         $model->checkConsensus();
 
         return [
-            'result'    => $model->consensusResult,
+            'result' => $model->consensusResult,
             'modelName' => AIHelper::MODELS[$model->consensusModel] ?? $model->consensusModel,
         ];
     }
