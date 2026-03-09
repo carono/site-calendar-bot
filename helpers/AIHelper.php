@@ -12,7 +12,27 @@ use yii\helpers\ArrayHelper;
 
 class AIHelper
 {
+    const MODELS = [
+        'openai/gpt-5.4-pro'          => 'GPT-5.4 Pro',
+        'anthropic/claude-sonnet-4.6' => 'Claude Sonnet 4.6',
+        'x-ai/grok-4'                 => 'Grok 4',
+    ];
+
+    const DEFAULT_MODEL = 'openai/gpt-5.4-pro';
+
     private $systemCommands = [];
+    private string $model = self::DEFAULT_MODEL;
+
+    public function withModel(string $model): static
+    {
+        $this->model = $model;
+        return $this;
+    }
+
+    public function getModel(): string
+    {
+        return $this->model;
+    }
 
     public function addSystem(System $system)
     {
@@ -31,24 +51,26 @@ class AIHelper
         return OpenAI::factory()
             ->withApiKey(Yii::$app->params['proxy-api']['token'])
             ->withBaseUri('routerai.ru/api/v1')
-//            ->withHttpClient(new Client(['proxy' => 'http://qBe5JW:9u047m@191.102.147.228:8000', 'verify' => false]))
-//            ->withHttpClient(new Client(['proxy' => '192.168.1.254:8888', 'verify' => false]))
             ->make();
     }
 
     /**
      * @return static
      */
-    public static function start()
+    public static function start(?string $model = null)
     {
-        return new static();
+        $instance = new static();
+        if ($model !== null) {
+            $instance->withModel($model);
+        }
+        return $instance;
     }
 
     public function ask(string $question, $messages = [])
     {
         $request = [
-            'model' => 'gpt-3.5-turbo',
-            'messages' => array_merge($messages, [
+            'model' => $this->model,
+            'messages' => array_merge($this->systemCommands, $messages, [
                 [
                     'role' => 'user',
                     'content' => $question

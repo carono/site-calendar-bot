@@ -32,5 +32,16 @@ return [
             ],
         ],
     ],
-    'log' => require 'log.php',
+    'log'   => require 'log.php',
+    'queue' => [
+        'class'        => \yii\queue\amqp\Queue::class,
+        'host'         => 'localhost',
+        'port'         => 5672,
+        'user'         => 'guest',
+        'password'     => 'guest',
+        'vhost'        => '/',
+        'queueName'    => 'gpt',
+        'exchangeName' => 'gpt',
+        'as log'       => \yii\queue\LogBehavior::class,
+    ],
 ];
