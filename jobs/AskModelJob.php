@@ -55,7 +55,7 @@ class AskModelJob implements JobInterface
         $token = Yii::$app->params['proxy-api']['token'];
         $baseUri = 'https://routerai.ru/api/v1/';
 
-        $client = new Client(['timeout' => 120]);
+        $client = new Client(['timeout' => 600]);
 
         try {
             $response = $client->post($baseUri.'chat/completions', [

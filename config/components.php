@@ -42,6 +42,7 @@ return [
         'vhost'        => '/',
         'queueName'    => 'gpt',
         'exchangeName' => 'gpt',
+        'ttr'          => 700,
         'as log'       => \yii\queue\LogBehavior::class,
     ],
 ];

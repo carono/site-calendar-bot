@@ -77,6 +77,11 @@ echo Html::submitButton(
     '<span class="glyphicon glyphicon-send"></span> Спросить все модели',
     ['class' => 'btn btn-primary', 'id' => 'submit-btn']
 );
+echo ' ';
+echo Html::button(
+    '<span class="glyphicon glyphicon-stop"></span> Прервать',
+    ['class' => 'btn btn-danger', 'id' => 'stop-btn', 'style' => 'display:none']
+);
 
 ActiveForm::end();
 
@@ -143,18 +148,21 @@ $consensusUrl = Url::to(['/gpt/consensus']);
 $allModels    = Json::encode(AIHelper::MODELS);
 $csrfParam    = Yii::$app->request->csrfParam;
 $initialPending = Json::encode($cachedPending);
+$stopUrl        = Url::to(['/gpt/stop']);
 $jsPushUrl      = Json::encode($pushUrl);
 $jsStatusUrl    = Json::encode($statusUrl);
 $jsConsensusUrl = Json::encode($consensusUrl);
+$jsStopUrl      = Json::encode($stopUrl);
 $jsCsrfParam    = Json::encode($csrfParam);
 
 $this->registerJs(<<<JS
 (function () {
-    var MODELS        = {$allModels};
-    var pushUrl       = {$jsPushUrl};
-    var statusUrl     = {$jsStatusUrl};
-    var consensusUrl  = {$jsConsensusUrl};
-    var csrfParam     = {$jsCsrfParam};
+    var MODELS         = {$allModels};
+    var pushUrl        = {$jsPushUrl};
+    var statusUrl      = {$jsStatusUrl};
+    var consensusUrl   = {$jsConsensusUrl};
+    var stopUrl        = {$jsStopUrl};
+    var csrfParam      = {$jsCsrfParam};
     var initialPending = {$initialPending};
 
     var pollTimer   = null;
@@ -280,11 +288,18 @@ $this->registerJs(<<<JS
         }
     });
 
+    function setStopBtn(visible) {
+        var btn = document.getElementById('stop-btn');
+        if (btn) btn.style.display = visible ? '' : 'none';
+    }
+
     function stopPolling() {
         if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        setStopBtn(false);
     }
 
     function startPolling(expectedModels) {
+        setStopBtn(true);
         stopPolling();
         pollStart = Date.now();
 
@@ -320,6 +335,35 @@ $this->registerJs(<<<JS
             }
         }, 2000);
     }
+
+    document.getElementById('stop-btn').addEventListener('click', async function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="glyphicon glyphicon-refresh icon-spin"></span> Останавливаю...';
+
+        stopPolling();
+
+        // Пометить pending-карточки как прерванные
+        (Yii.app ? [] : document.querySelectorAll('[id^="ans_"]')).forEach &&
+        document.querySelectorAll('[id^="ans_"]').forEach(function (el) {
+            if (el.querySelector('.icon-spin')) {
+                el.innerHTML = '<span class="text-muted">— прервано —</span>';
+                var panel = el.closest ? el.closest('.panel') : el.parentElement;
+                if (panel) panel.className = panel.className.replace(/panel-(default|info|danger)/g, 'panel-warning');
+            }
+        });
+
+        var data = new FormData();
+        data.append(csrfParam, getcsrf());
+        try {
+            await fetch(stopUrl, { method: 'POST', body: data });
+        } catch (e) { /* игнорируем */ }
+
+        btn.disabled = false;
+        btn.innerHTML = '<span class="glyphicon glyphicon-stop"></span> Прервать';
+        btn.style.display = 'none';
+        document.getElementById('submit-btn').disabled = false;
+    });
 
     // If page loaded with pending models (worker still running) — resume polling
     if (initialPending.length > 0) {

@@ -142,7 +142,7 @@ class GptForm extends Model
 
     private function callApi(string $model, array $messages): string
     {
-        $client = new Client(['timeout' => 120]);
+        $client = new Client(['timeout' => 600]);
         try {
             $response = $client->post('https://routerai.ru/api/v1/chat/completions', [
                 'headers' => [

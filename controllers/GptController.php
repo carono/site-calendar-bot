@@ -81,6 +81,33 @@ class GptController extends Controller
     }
 
     /**
+     * Прерывает обработку: очищает очередь RabbitMQ и сбрасывает pending-список.
+     */
+    public function actionStop()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        /** @var \yii\queue\amqp\Queue $queue */
+        $queue = Yii::$app->queue;
+
+        try {
+            $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection(
+                $queue->host, $queue->port, $queue->user, $queue->password, $queue->vhost
+            );
+            $channel = $connection->channel();
+            $channel->queue_purge($queue->queueName);
+            $channel->close();
+            $connection->close();
+        } catch (\Throwable $e) {
+            Yii::error('Stop queue error: ' . $e->getMessage());
+        }
+
+        Yii::$app->cache->delete('gpt-form-pending');
+
+        return ['ok' => true];
+    }
+
+    /**
      * Возвращает текущее состояние ответов из кеша (GET, используется для polling).
      */
     public function actionStatus()
