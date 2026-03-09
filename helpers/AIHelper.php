@@ -16,7 +16,7 @@ class AIHelper
     const MODELS = [
         'openai/gpt-5.4' => 'GPT-5.4',
         'anthropic/claude-sonnet-4.6' => 'Claude Sonnet 4.6',
-        'x-ai/grok-4' => 'Grok 4',
+        'google/gemini-3.1-pro-preview' => 'google/gemini-3.1-pro-preview',
     ];
 
     const DEFAULT_MODEL = 'openai/gpt-5.4';

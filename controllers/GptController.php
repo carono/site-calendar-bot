@@ -60,7 +60,10 @@ class GptController extends Controller
             $imagesBase64[] = base64_encode(file_get_contents($image->tempName));
         }
 
-        // Сохраняем контекст в кеш и сбрасываем прошлые ответы
+        // Новая сессия — старые jobs от предыдущих вопросов проигнорируют свои результаты
+        $sessionId = uniqid('', true);
+
+        Yii::$app->cache->set('gpt-form-session', $sessionId);
         Yii::$app->cache->set('gpt-form-system', $system);
         Yii::$app->cache->set('gpt-form-prompt', $prompt);
         Yii::$app->cache->set('gpt-form-models', $validModels);
@@ -69,10 +72,11 @@ class GptController extends Controller
 
         // Пушим по одному job на каждую модель
         foreach ($validModels as $modelId) {
-            $job = new AskModelJob();
-            $job->modelId = $modelId;
-            $job->system = $system;
-            $job->prompt = $prompt;
+            $job            = new AskModelJob();
+            $job->modelId   = $modelId;
+            $job->sessionId = $sessionId;
+            $job->system    = $system;
+            $job->prompt    = $prompt;
             $job->imagesBase64 = $imagesBase64;
             Yii::$app->queue->push($job);
         }
@@ -102,6 +106,8 @@ class GptController extends Controller
             Yii::error('Stop queue error: ' . $e->getMessage());
         }
 
+        // Инвалидируем сессию — летящие jobs увидят несовпадение и выбросят результаты
+        Yii::$app->cache->set('gpt-form-session', uniqid('', true));
         Yii::$app->cache->delete('gpt-form-pending');
 
         return ['ok' => true];

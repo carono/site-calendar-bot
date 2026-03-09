@@ -10,12 +10,10 @@ use yii\queue\JobInterface;
 class AskModelJob implements JobInterface
 {
 
-    public  $modelId = '';
-
-    public  $system = '';
-
-    public  $prompt = '';
-
+    public  $modelId   = '';
+    public  $sessionId = '';
+    public  $system    = '';
+    public  $prompt    = '';
     public array $imagesBase64 = [];
 
     public function execute($queue): void
@@ -42,7 +40,12 @@ class AskModelJob implements JobInterface
 
         $answer = $messages ? $this->callApi($messages) : 'Ошибка: запрос пустой (не задан prompt)';
 
-        $answers = Yii::$app->cache->get('gpt-form-answers') ?: [];
+        // Записываем результат только если пользователь не перешёл к новому вопросу
+        if (Yii::$app->cache->get('gpt-form-session') !== $this->sessionId) {
+            return;
+        }
+
+        $answers              = Yii::$app->cache->get('gpt-form-answers') ?: [];
         $answers[$this->modelId] = $answer;
         Yii::$app->cache->set('gpt-form-answers', $answers);
 
