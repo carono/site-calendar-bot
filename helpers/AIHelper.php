@@ -30,7 +30,7 @@ class AIHelper
     {
         return OpenAI::factory()
             ->withApiKey(Yii::$app->params['proxy-api']['token'])
-            ->withBaseUri('api.proxyapi.ru/openai/v1')
+            ->withBaseUri('routerai.ru/api/v1')
 //            ->withHttpClient(new Client(['proxy' => 'http://qBe5JW:9u047m@191.102.147.228:8000', 'verify' => false]))
 //            ->withHttpClient(new Client(['proxy' => '192.168.1.254:8888', 'verify' => false]))
             ->make();
